@@ -1,0 +1,7 @@
+# Package managers
+bower_components
+node_modules
+
+# Temp files
+*.*~
+*.swp
