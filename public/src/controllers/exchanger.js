@@ -31,7 +31,7 @@ define(function () {
             /*  Close and destroy the exchange. This must be performed by each party, since
              *  they have separate Exchange instances to describe the transaction. */
 
-            console.log('exchange terminated');
+            console.log(this.role + ' has hung up');
             
             //  TODO Unbind listeners
 
@@ -44,8 +44,7 @@ define(function () {
              *  is where each side can set limits to what it can accept or provide in the
              *  transaction. Either side may set an opinion on the manifest to influence
              *  the other party's behavior. If either side sets an opinion of "never", the
-             *  transaction is terminated immediately.
-             *  Implement a negotiate() method on the parent controller to handle this. */
+             *  transaction is terminated immediately. */
             var self = this;
             if ('accept' === manifest.opinion && 'target' === this.role) {
                 this.peer.deliver(manifest, this.proxy(this.receive));
@@ -73,7 +72,7 @@ define(function () {
         }
     });
 
-    var Exchanger = Spine.Controller.sub({
+    var Exchanger = Spine.Class.sub({
         exchange: function (peer, role, manifest) {
             this.exchanger = new Exchange({
                 peer: peer, 
@@ -100,6 +99,19 @@ define(function () {
                 parent: this
             });
             controller.exchange(this.exchanger, 'target', manifest);
+        },
+        negotiate: function (manifest) {
+            //  Override this function!
+            manifest.opinion = 'accept';
+            return manifest;
+        },
+        deliver: function () {
+            //  Override this function!
+            return {};        
+        },
+        receive: function () {
+            //  Override this function!
+            return true;
         }
     });
     

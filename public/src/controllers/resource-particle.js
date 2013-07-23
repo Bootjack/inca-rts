@@ -1,7 +1,9 @@
 define(['src/models/resource', 'src/controllers/exchanger'], function (Resource, Exchanger) {
     var ResourceParticle;
     
-    ResourceParticle = Exchanger.sub({    
+    ResourceParticle = Spine.Controller.sub();
+    ResourceParticle.include(new Exchanger());
+    ResourceParticle.include({    
         init: function () {
             this.model.bind('update', this.proxy(function () {
                 this.render();

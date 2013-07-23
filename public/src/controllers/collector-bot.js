@@ -1,7 +1,9 @@
 define(['src/models/collector', 'src/controllers/exchanger'], function (Collector, Exchanger) {
     var CollectorController;
     
-    CollectorController = Exchanger.sub({   
+    CollectorController = Spine.Controller.sub();
+    CollectorController.include(new Exchanger());
+    CollectorController.include({   
         //  Core Controller Methods
         init: function () {            
             this.model.bind('update', this.proxy(this.render));
