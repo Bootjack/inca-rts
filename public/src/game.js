@@ -10,7 +10,6 @@ require.config({
 
 require(['modernizr', 'jquery', 'spine', 'underscore'], function () {
     require(['crafty', 'src/config'], function (Crafty, config) {
-        if (window.Spine) console.log("Hey! There's Spine!");
         //start Crafty
         Crafty.init(800, 600);
         Crafty.canvas.init();

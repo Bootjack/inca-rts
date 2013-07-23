@@ -1,9 +1,11 @@
 define(['src/models/resource'], function (Resource) {
     var ResourceList = Spine.Controller.sub({
         models: [],
-        add: function (model) {
-            this.models.push(model);
-            model.bind('update', this.proxy(function (model) {
+        particles: [],
+        add: function (controller) {
+            this.particles.push(controller);
+            this.models.push(controller.model);
+            controller.model.bind('update', this.proxy(function (model) {
                 this.render();
             }));
             this.render();

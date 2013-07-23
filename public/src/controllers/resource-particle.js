@@ -1,24 +1,15 @@
-define(['src/models/resource'], function (Resource) {
+define(['src/models/resource', 'src/controllers/exchanger'], function (Resource, Exchanger) {
     var ResourceParticle;
     
-    ResourceParticle = Spine.Controller.sub({    
+    ResourceParticle = Exchanger.sub({    
         init: function () {
-            
-            /*  This is probably overkill. For simplicity, we can just define these
-             *  properties and let the instantiation parameters override them.
-            var defaults = {
-                quantity: 100,
-                type: 'water'
-            };
-            _.each(defaults, function (value, key) {
-                 this[key] = this[key] || value;
-            });
-            */
-            
             this.model.bind('update', this.proxy(function () {
                 this.render();
             }));
+        },
         
+        type: function() {
+            return this.model.type;
         },
         
         quantity: function () {
@@ -33,6 +24,14 @@ define(['src/models/resource'], function (Resource) {
         replenish: function (amount) {
             this.model.replenish(amount);
             return this;
+        },
+        
+        deliver: function (manifest, callback) {
+            var self = this;
+            console.log('actually delivering from parent');
+            Crafty.e('Delay').delay(function () {
+                callback(self.deplete(manifest.quantity));
+            }, 1000);
         },
         
         render: function () {
