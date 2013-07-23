@@ -23,17 +23,14 @@ define(function() {
         /*  NOTE First attempt tried naming the `collect()` method `load()`, which is already
          *  a Spine.Model method called after create. So, consider that method name reserved. Kthx. */
         collect: function (amount, type) {
-            var surplus, thisCollector = this;
+            var surplus;
             //  TODO test that we don't already have a load
             //  TODO test that we can accept this load type
             this.type = type || this.type;
-            
-            //  It takes some time to collect a load, so handle that asynchronously
-            Crafty.e('Delay').delay(function () {
-                thisCollector.cargo = Math.min(thisCollector.limit, amount);
-                thisCollector.status = Collector.States.indexOf('Full');
-                thisCollector.save();
-            }, this.delay);
+
+            this.cargo = Math.min(this.limit, amount);
+            this.status = Collector.States.indexOf('Full');
+            this.save();
             
             //  Return any surplus
             surplus = Math.max(0, amount - this.capacity)

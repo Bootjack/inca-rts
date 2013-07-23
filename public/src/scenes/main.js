@@ -20,7 +20,15 @@ Crafty.scene('main', function() {
         Collector,
         CollectorBot
     ) {
-        var resourceList, processorList, water, random, random2;
+        var resourceList, processorList, water, random, random2, x;
+
+        //  Testing continous asynchronisity (gets really annoying...)
+        /*
+        x = 0;
+        Crafty.e('Delay').delay(function () {
+            console.log(x += 1);
+        }, 10, 100);
+        */
   
         //  Testing scaffold for resources
   	    resourceList = new ResourceList({

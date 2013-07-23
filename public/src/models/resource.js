@@ -1,6 +1,6 @@
 define(function() {
     var Resource = Spine.Model.sub();
-    Resource.configure('Resource', 'quantity');
+    Resource.configure('Resource', 'quantity', 'type');
     
     Resource.include({
         deplete: function (amount) {

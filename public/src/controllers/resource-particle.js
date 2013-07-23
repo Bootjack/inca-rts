@@ -17,20 +17,27 @@ define(['src/models/resource', 'src/controllers/exchanger'], function (Resource,
         },
         
         deplete: function (amount) {
-            this.model.deplete(amount);
-            return this;
+            return this.model.deplete(amount);
         },
         
         replenish: function (amount) {
             this.model.replenish(amount);
             return this;
         },
+
+        negotiate: function (manifest) {
+            manifest.quantity = 5;
+            return manifest;
+        },
         
         deliver: function (manifest, callback) {
             var self = this;
-            console.log('actually delivering from parent');
             Crafty.e('Delay').delay(function () {
-                callback(self.deplete(manifest.quantity));
+                var packet = {
+                    quantity: self.deplete(manifest.quantity),
+                    type: self.type()
+                };
+                callback(packet);
             }, 1000);
         },
         

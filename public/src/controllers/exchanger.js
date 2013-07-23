@@ -7,43 +7,69 @@ define(function () {
 
     var Exchange = Spine.Model.sub();
     Exchange.configure('Exchange', 'peer', 'role', 'manifest', 'parent');
+    
+    /*  The Exchange model represents the transaction between two peers from the
+     *  perspective of one side. It defines that side's role, the peer on the other
+     *  side, and a description of the exchange being considered. It also has a reference
+     *  to its parent, the controller for a game object. */
+     
     Exchange.include({ 
+    
         open: function (peer) {
-            console.log('opening exchange as ' + this.role);
+            
+            /*  Respond to a new exchange request called on the parent controller by
+             *  the initiator of the exchange. This provides the initiator with a reference 
+             *  to an Exchange instance to use as its peer. */
+             
+            console.log('opening exchange as ' + this.role + ': ' + JSON.stringify(this.manifest));
             this.peer = peer;
             this.peer.negotiate(this.manifest);
         },
-            
+        
         close: function () {
-            this.source = undefined;
-            this.target = undefined;
-            this.manifest = undefined;
+
+            /*  Close and destroy the exchange. This must be performed by each party, since
+             *  they have separate Exchange instances to describe the transaction. */
+
+            console.log('exchange terminated');
             
             //  TODO Unbind listeners
+
+            delete this;            
         },
-            
+        
+        
         negotiate: function (manifest) {
+            /*  Negotiation is the heart of the exchange logic. Or maybe the brain. This
+             *  is where each side can set limits to what it can accept or provide in the
+             *  transaction. Either side may set an opinion on the manifest to influence
+             *  the other party's behavior. If either side sets an opinion of "never", the
+             *  transaction is terminated immediately.
+             *  Implement a negotiate() method on the parent controller to handle this. */
             var self = this;
             if ('accept' === manifest.opinion && 'target' === this.role) {
                 this.peer.deliver(manifest, this.proxy(this.receive));
+            } else if ('never' === manifest.opinion) {
+                this.close();
             } else {
-                manifest.opinion = 'accept';
+                manifest = this.parent.negotiate(manifest);
                 console.log('negotiating exchange as ' + this.role + ': ' + JSON.stringify(manifest));
                 this.peer.negotiate(manifest);
             }
         },
         
         deliver: function (manifest, callback) {
-            //  Implement a devlier() method on the parent controller to handle this
-            console.log('delivering manifest from parent: ' + this.parent.deliver);
-            if (this.parent.hasOwnProperty('deliver')) this.parent.deliver(manifest, callback);
-            delete this;
+            //  Implement a deliver() method on the parent controller to handle this
+            console.log('delivering manifest from parent');
+            this.parent.deliver(manifest, callback);
+            this.close();
         },
         
         receive: function (packet) {
             //  Implement a receive() method on the parent controller to handle this
             console.log('receiving manifest');
-            if (this.parent.hasOwnProperty('receive')) this.parent.receive(packet);
+            this.parent.receive(packet);
+            this.close();
         }
     });
 
