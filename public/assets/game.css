@@ -6,8 +6,13 @@
 
 #spine-out {
     border: 1px solid lightgray;
+    color: gray;
+    font: 0.8em/1em monospace;
     min-height: 2em;
     margin: 50px auto;
+    max-height: 15em;
+    overflow: auto;
+    padding: 1em;
     width: 800px;
 }
 
@@ -23,8 +28,9 @@ h1 {
 }
 
 .scene-link {
-    background-color: #aaaaaa;
-    color: black;
+    background-color: #777777;
+    border-left: 4px solid white;
+    color: white;
     display: block;
     font-family: 'Helvetica', 'Arial', sans-serif;
     padding: 0.25em;

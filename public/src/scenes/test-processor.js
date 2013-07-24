@@ -10,13 +10,21 @@ Crafty.scene('test-processor', function() {
     ) {
         var resourceList, processorList, water, random, random2, x;
 
-        //  Testing continous asynchronisity (gets really annoying...)
+        //  Testing continuous asynchronisity (gets really annoying...)
         /*
         x = 0;
         Crafty.e('Delay').delay(function () {
             console.log(x += 1);
         }, 10, 100);
         */
+
+        //  Intercepting console.log to #spine-out
+        var log = console.log;
+        console.log = function (message) {
+            var line = $('<p>').html(message);
+            $('#spine-out').append(line);
+            log(message);
+        }
 
         //  Testing scaffold for processors
         processorList = new ProcessorList({
@@ -29,7 +37,7 @@ Crafty.scene('test-processor', function() {
                 el: $('<p>'),
                 model: model
             });
-            $('#resource-map').append(processorNode.render().el);
+            $('#spine-out').append(processorNode.render().el);
             processorList.add(model);
         });
         for (i = 0; i < 4; i += 1) {

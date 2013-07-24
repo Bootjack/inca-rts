@@ -16,7 +16,14 @@ Crafty.scene('test-collector', function() {
     ) {
         var resourceList, processorList, water, random, random2, x;
 
-        //  Testing continous asynchronisity (gets really annoying...)
+        var log = console.log;
+        console.log = function (message) {
+            var line = $('<p>').html(message);
+            $('#spine-out').append(line);
+            log(message);
+        }
+
+        //  Testing continuous asynchronisity (gets really annoying...)
         /*
         x = 0;
         Crafty.e('Delay').delay(function () {
@@ -58,9 +65,16 @@ Crafty.scene('test-collector', function() {
         });
         Collector.create();
 
+        resourceList.particles[0].offer(collectorBot, {
+            type: 'water',
+            quantity: 10
+        });
+
+        /*
         collectorBot.request(resourceList.particles[0], {
             type: 'water',
             quantity: 10
         });
+        */
     });
 });

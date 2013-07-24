@@ -29,6 +29,7 @@ define(['src/models/resource', 'src/controllers/exchanger'], function (Resource,
 
         negotiate: function (manifest) {
             manifest.quantity = 5;
+            manifest.opinion = 'accept';
             return manifest;
         },
         
