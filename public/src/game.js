@@ -17,9 +17,13 @@ require(['modernizr', 'jquery', 'spine', 'underscore'], function () {
       
         //the loading screen - that will be display while assets loaded
         Crafty.scene("loading", function () {
-            // clear scene and interface
-            sc = []; 
-            infc = [];
+            Crafty.e('DOM, HTML, Mouse')
+                .DOM($('<p>').addClass('crafty').css({'font-size': '2em'}))
+                .replace('Resource Test')
+                .bind('click', function () {
+                    console.log('clicked!');
+                    Crafty.scene('test-resource');
+                });
         
             //when everything is loaded, run the main scene
             require(["src/scenes/main"], function () {     
