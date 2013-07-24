@@ -1,7 +1,7 @@
 #cr-stage {
     background-image: -moz-linear-gradient(top, whitesmoke 20%, white 90%);
     border: 1px solid lightgray;
-    margin: 50px auto;
+    margin: 0 auto;
 }
 
 #spine-out {
@@ -9,11 +9,11 @@
     color: gray;
     font: 0.8em/1em monospace;
     min-height: 2em;
-    margin: 50px auto;
+    margin: 0 auto;
     max-height: 15em;
     overflow: auto;
-    padding: 1em;
-    width: 800px;
+    padding: 1em 25px;
+    width: 750px;
 }
 
 body {
@@ -23,7 +23,8 @@ body {
 }
 
 h1 {
-    margin: 50px auto;
+    line-height: 1.5em;
+    margin: 1em auto 0 auto;
     width: 800px;
 }
 
