@@ -36,6 +36,8 @@ Crafty.scene('main', function() {
             $('#resource-map').append(processorNode.render().el);
             processorList.add(model);
         });
+        
+
   	     
         for (i = 0; i < 10; i += 1) {
             random = Math.floor(10 - Math.random() * 20);

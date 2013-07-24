@@ -4,6 +4,7 @@ define(['src/models/resource'], function (Resource) {
     ResourceParticle = Spine.Controller.sub({    
         init: function () {
             
+                        
             /*  This is probably overkill. For simplicity, we can just define these
              *  properties and let the instantiation parameters override them.
             var defaults = {
@@ -37,6 +38,8 @@ define(['src/models/resource'], function (Resource) {
         
         render: function () {
             this.el.html(this.model.quantity);
+            this.model.sprite.y +=10;
+            console.log(this.model.sprite);
             return this;
         }
     });
