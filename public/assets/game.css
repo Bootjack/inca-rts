@@ -1,10 +1,36 @@
-body {
-    -webkit-tap-highlight-color: rgba(0,0,0,0);
-    margin: 0;
-}
-
 #cr-stage {
     background-image: -moz-linear-gradient(top, whitesmoke 20%, white 90%);
     border: 1px solid lightgray;
     margin: 50px auto;
+}
+
+#spine-out {
+    border: 1px solid lightgray;
+    min-height: 2em;
+    margin: 50px auto;
+    width: 800px;
+}
+
+body {
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    font: 1em/1.2em 'Helvetica', 'Arial', sans-serif;
+    margin: 0;
+}
+
+h1 {
+    margin: 50px auto;
+    width: 800px;
+}
+
+.scene-link {
+    background-color: #aaaaaa;
+    color: black;
+    display: block;
+    font-family: 'Helvetica', 'Arial', sans-serif;
+    padding: 0.25em;
+    text-decoration: none;    
+}
+.scene-link:hover {
+    background: orange;
+    color: white;
 }

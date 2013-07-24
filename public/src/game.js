@@ -17,19 +17,41 @@ require(['modernizr', 'jquery', 'spine', 'underscore'], function () {
       
         //the loading screen - that will be display while assets loaded
         Crafty.scene("loading", function () {
-            Crafty.e('DOM, HTML, Mouse')
-                .DOM($('<p>').addClass('crafty').css({'font-size': '2em'}))
-                .replace('Resource Test')
-                .bind('click', function () {
-                    console.log('clicked!');
+            
+            Crafty.e('2D, HTML, Mouse')
+                .attr({x: 25, y: 25, w: 250, h:25})
+                .replace('<a href="#" class="scene-link">Resource Test</a>')
+                .bind('Click', function (e) {
+                    e.preventDefault();
                     Crafty.scene('test-resource');
+                });
+
+            Crafty.e('2D, HTML, Mouse')
+                .attr({x: 25, y: 75, w: 250, h:25})
+                .replace('<a href="#" class="scene-link">Collector Test</a>')
+                .bind('Click', function (e) {
+                    e.preventDefault();
+                    Crafty.scene('test-collector');
+                });
+
+            Crafty.e('2D, HTML, Mouse')
+                .attr({x: 25, y: 125, w: 250, h:25})
+                .replace('<a href="#" class="scene-link">Processor Test</a>')
+                .bind('Click', function (e) {
+                    e.preventDefault();
+                    Crafty.scene('test-processor');
                 });
         
             //when everything is loaded, run the main scene
-            require(["src/scenes/main"], function () {     
-              if (config.scene != undefined) {
-                Crafty.scene(config.scene);
-              }
+            require([
+                "src/scenes/main",
+                'src/scenes/test-resource',
+                'src/scenes/test-collector',
+                'src/scenes/test-processor'
+            ], function () {     
+                if (config.scene != undefined) {
+                    Crafty.scene(config.scene);
+                }
             });
         
         })

@@ -2,7 +2,7 @@ Crafty.scene('test-collector', function() {
     require([
         'src/models/resource',
         'src/controllers/resource-particle',
-        'src/controllers/resource-list'
+        'src/controllers/resource-list',
         
         'src/models/collector',
         'src/controllers/collector-bot'

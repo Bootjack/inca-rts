@@ -28,7 +28,7 @@ Crafty.scene('test-resource', function() {
                 el: $('<p>'),
                 model: model
             });
-            $('#resource-map').append(resourceParticle.render().el);
+            $('#spine-out').append(resourceParticle.render().el);
             resourceList.add(resourceParticle);
         });
         for (i = 0; i < 10; i += 1) {
