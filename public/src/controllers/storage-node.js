@@ -1,9 +1,9 @@
 define(['src/models/storage', 'src/controllers/exchanger'], function (Storage, Exchanger) {
-    var ResourceParticle;
-    
-    ResourceParticle = Spine.Controller.sub();
+    'use strict';
+
+    var ResourceParticle = Spine.Controller.sub();
     ResourceParticle.include(new Exchanger());
-    ResourceParticle.include({    
+    ResourceParticle.include({
         //  Spine controller methods
         init: function () {
             this.model.bind('update', this.proxy(function () {
@@ -17,12 +17,19 @@ define(['src/models/storage', 'src/controllers/exchanger'], function (Storage, E
         },
 
         //  Exchanger methods
-        negotiate: function (manifest) {
-            if (!manifest.type || !this.allowed(manifest.type) {
+        negotiate: function (manifest, role) {
+            if (!manifest.type || !this.allowed(manifest.type)) {
                 manifest.type = this.type();
             }
-            if (this.quantity() + manifest.quantity > this.capacity()) {
-                manifest.quantity = this.capacity() - this.quantity();
+            
+            if ('target' === role) {
+                if (this.quantity() + manifest.quantity > this.capacity()) {
+                    manifest.quantity = this.capacity() - this.quantity();
+                }
+            } else if ('source' === role) {
+                if (this.quantity() < manifest.quantity) {
+                    manifest.quantity = this.quantity();
+                }
             }
             manifest.opinion = 'accept';
             return manifest;
@@ -39,14 +46,13 @@ define(['src/models/storage', 'src/controllers/exchanger'], function (Storage, E
             }, this.model.delay);
         },
         
-        receive: function (manifest, callback) {
+        receive: function (manifest) {
             var self = this;
             Crafty.e('Delay').delay(function () {
                 var packet = {
                     quantity: self.replenish(manifest.quantity),
                     type: self.type()
                 };
-                callback(packet);
             }, this.model.delay);
         },
 
@@ -57,7 +63,7 @@ define(['src/models/storage', 'src/controllers/exchanger'], function (Storage, E
 
         capacity: function () {
             return this.model.capacity;
-        },        
+        },
 
         allowed: function (type) {
             return type === this.model.type;

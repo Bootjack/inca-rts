@@ -1,11 +1,14 @@
 define(function () {
-
+    'use strict';
+    
     /*  Exchangers are capable of negotiating an asynchronous transfer described by
      *  a mutually agreed upon manifest. The primary use for this is for exchanging
      *  resources between nodes in the city system, especially when there are known
      *  delays (read: contrived timeouts) involved in handling and processing material. */
 
-    var Exchange = Spine.Model.sub();
+    var Exchange, Exchanger;
+    
+    Exchange = Spine.Model.sub();
     Exchange.configure('Exchange', 'peer', 'role', 'manifest', 'parent');
     
     /*  The Exchange model represents the transaction between two peers from the
@@ -13,7 +16,7 @@ define(function () {
      *  side, and a description of the exchange being considered. It also has a reference
      *  to its parent, the controller for a game object. */
      
-    Exchange.include({ 
+    Exchange.include({
     
         open: function (peer) {
             
@@ -35,7 +38,7 @@ define(function () {
             
             //  TODO Unbind listeners
 
-            delete this;            
+            delete this.parent.exchanger;
         },
         
         
@@ -58,7 +61,7 @@ define(function () {
                 this.close();
             } else {
                 //  Run some more complex negotiation logic based on what the parent thinks
-                manifest = this.parent.negotiate(manifest);
+                manifest = this.parent.negotiate(manifest, this.role);
                 console.log('negotiating exchange as ' + this.role + ': ' + JSON.stringify(manifest));
                 this.peer.negotiate(manifest);
             }
@@ -92,7 +95,7 @@ define(function () {
      *  be added to an existing Spine.Controller to enable it to initiate and respond
      *  to new exchange() transactions. */
 
-    var Exchanger = Spine.Class.sub({
+    Exchanger = Spine.Class.sub({
         request: function (controller, manifest) {
 
             /*  Initiates a new exchange with this controller taking the role of target.
@@ -100,7 +103,7 @@ define(function () {
              *  a new transaction with another controller that includes Exchanger.*/
 
             this.exchanger = new Exchange({
-                peer: null, 
+                peer: null,
                 role: 'target',
                 manifest: manifest,
                 parent: this
@@ -114,7 +117,7 @@ define(function () {
              *  a new transaction with another controller that includes Exchanger.*/
 
             this.exchanger = new Exchange({
-                peer: null, 
+                peer: null,
                 role: 'source',
                 manifest: manifest,
                 parent: this
@@ -130,7 +133,7 @@ define(function () {
         
         deliver: function () {
             //  Override this function!
-            return {};        
+            return {};
         },
         
         receive: function () {
@@ -145,7 +148,7 @@ define(function () {
              *  logic, it is only used by request() and offer(). */
 
             this.exchanger = new Exchange({
-                peer: peer, 
+                peer: peer,
                 role: role,
                 manifest: manifest,
                 parent: this

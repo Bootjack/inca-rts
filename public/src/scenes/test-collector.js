@@ -9,6 +9,9 @@ var $, console, Crafty, require;
             'src/controllers/resource-particle',
             'src/controllers/resource-list',
             
+            'src/models/storage',
+            'src/controllers/storage-node',
+            
             'src/models/collector',
             'src/controllers/collector-bot'
         ], function (
@@ -16,15 +19,20 @@ var $, console, Crafty, require;
             ResourceParticle,
             ResourceList,
             
+            Storage,
+            StorageNode,
+            
             Collector,
             CollectorBot
         ) {
-            var collectorBot, i, resourceList, processorList, water, random, random2, x;
+            var collectorBot, i, resourceList, processorList, random, storageNode, x;
     
             /*  This is quite an odd construction, but necessary to get V8 to accept log
              *  as a function that duplicates console.log, retains its context, and yet
              *  doesn't become recursive when console.log is redefined on the next few lines. 
              *  This deserves some review as to whether it's really a good pattern. */
+            
+            /*
             function log() {
                 return console.log.prototype;
             }
@@ -33,6 +41,7 @@ var $, console, Crafty, require;
                 $('#spine-out').append(line);
                 log(message);
             };
+            */
     
             //  Testing continuous asynchronisity (gets really annoying...)
             /*
@@ -71,21 +80,31 @@ var $, console, Crafty, require;
                     el: $('<p>'),
                     model: model
                 });
-                $('#resource-map').append(collectorBot.render().el);
+                $('#spine-out').append(collectorBot.render().el);
             });
             Collector.create();
-    
-            resourceList.particles[0].offer(collectorBot, {
-                type: 'water',
-                quantity: 10
+            
+            Storage.bind('create', function (model) {
+                storageNode = new StorageNode({
+                    model: model
+                });
             });
-                
-            /*
-            collectorBot.request(resourceList.particles[0], {
-                type: 'water',
-                quantity: 10
+            Storage.create({
+                type: 'water'
             });
-            */
+            
+            Crafty.e('Delay').delay(function () {
+                collectorBot.request(resourceList.particles[0], {
+                    type: 'water',
+                    quantity: 10
+                });
+
+                $('#spine-out').append(
+                    $('<p>').text(resourceList.particles[0].quantity()
+                    + ' -> '
+                    + storageNode.quantity()
+                ));
+            }, 2500, 11);
         });
     });
 }());

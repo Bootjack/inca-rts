@@ -1,4 +1,6 @@
-define(function() {
+define(function () {
+    'use strict';
+    
     var Storage = Spine.Model.sub();
     Storage.configure('Storage', 'type', 'delay', 'capacity', 'quantity');
     
@@ -9,7 +11,7 @@ define(function() {
         quantity: 0,
         
         deplete: function (amount) {
-            var amount = Math.min(amount, this.quantity);
+            amount = Math.min(amount, this.quantity);
             this.quantity -= amount;
             this.save();
             return amount;
