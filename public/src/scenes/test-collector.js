@@ -25,32 +25,8 @@ var $, console, Crafty, require;
             Collector,
             CollectorBot
         ) {
-            var collectorBot, i, resourceList, processorList, random, storageNode, x;
-    
-            /*  This is quite an odd construction, but necessary to get V8 to accept log
-             *  as a function that duplicates console.log, retains its context, and yet
-             *  doesn't become recursive when console.log is redefined on the next few lines. 
-             *  This deserves some review as to whether it's really a good pattern. */
+            var collectorBot, i, quantity, resourceList, x, y;
             
-            /*
-            function log() {
-                return console.log.prototype;
-            }
-            console.log = function (message) {
-                var line = $('<p>').html(message);
-                $('#spine-out').append(line);
-                log(message);
-            };
-            */
-    
-            //  Testing continuous asynchronisity (gets really annoying...)
-            /*
-            x = 0;
-            Crafty.e('Delay').delay(function () {
-                console.log(x += 1);
-            }, 10, 100);
-            */
-      
             //  Testing scaffold for resources
             resourceList = new ResourceList({
                 el: $('#resource-list')
@@ -61,50 +37,32 @@ var $, console, Crafty, require;
                     el: $('<p>'),
                     model: model
                 });
-                $('#resource-map').append(resourceParticle.render().el);
+                //$('#spine-out').append(resourceParticle.render().el);
                 resourceList.add(resourceParticle);
             });
             for (i = 0; i < 10; i += 1) {
-                random = Math.floor(10 - Math.random() * 20);
-                Resource.create({quantity: 100 + random, type: 'water'});
+                quantity = 90 + Math.floor(Math.random() * 20);
+                x = 100 + Math.floor(Math.random() * 600);
+                y = 100 + Math.floor(Math.random() * 400);
+                Resource.create({
+                    type: 'water', 
+                    quantity: quantity,
+                    capacity: 200,
+                    delay: 2000,
+                    x: x,
+                    y: y
+                });
             }
-            /*
-            Crafty.e('Delay').delay(function () {
-                resourceList.models[3].deplete(30);
-            }, 1000, 5);
-            */
             
             //  Testing scaffold for collectors
-            Collector.bind('create', function (model) {
-                collectorBot = new CollectorBot({
-                    el: $('<p>'),
-                    model: model
-                });
-                $('#spine-out').append(collectorBot.render().el);
-            });
-            Collector.create();
-            
-            Storage.bind('create', function (model) {
-                storageNode = new StorageNode({
-                    model: model
-                });
-            });
-            Storage.create({
-                type: 'water'
-            });
-            
-            Crafty.e('Delay').delay(function () {
-                collectorBot.request(resourceList.particles[0], {
+            collectorBot = new CollectorBot({
+                model: new Collector({
                     type: 'water',
-                    quantity: 10
-                });
-
-                $('#spine-out').append(
-                    $('<p>').text(resourceList.particles[0].quantity()
-                    + ' -> '
-                    + storageNode.quantity()
-                ));
-            }, 2500, 11);
+                    capacity: 50
+                })
+            });
+            
+            collectorBot.request(resourceList.particles[0], {type: 'water', quantity: 50});
         });
     });
 }());
