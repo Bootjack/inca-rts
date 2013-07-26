@@ -13,8 +13,7 @@ define(function () {
         
         x: 0,
         y: 0,
-        width: 20,
-        height: 20,
+        size: 20,
         
         full: function () {
             return this.quantity === this.capacity;

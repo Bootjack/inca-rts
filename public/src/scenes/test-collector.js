@@ -5,64 +5,32 @@ var $, console, Crafty, require;
     
     Crafty.scene('test-collector', function () {
         require([
-            'src/models/resource',
-            'src/controllers/resource-particle',
-            'src/controllers/resource-list',
+            'src/components/resource',
+        ], function () {
+            var collector, i, quantity, x, y;
             
-            'src/models/storage',
-            'src/controllers/storage-node',
-            
-            'src/models/collector',
-            'src/controllers/collector-bot'
-        ], function (
-            Resource,
-            ResourceParticle,
-            ResourceList,
-            
-            Storage,
-            StorageNode,
-            
-            Collector,
-            CollectorBot
-        ) {
-            var collectorBot, i, quantity, resourceList, x, y;
-            
-            //  Testing scaffold for resources
-            resourceList = new ResourceList({
-                el: $('#resource-list')
-            });
-            resourceList.render();
-            Resource.bind('create', function (model) {
-                var resourceParticle = new ResourceParticle({
-                    el: $('<p>'),
-                    model: model
-                });
-                //$('#spine-out').append(resourceParticle.render().el);
-                resourceList.add(resourceParticle);
-            });
             for (i = 0; i < 10; i += 1) {
                 quantity = 90 + Math.floor(Math.random() * 20);
                 x = 100 + Math.floor(Math.random() * 600);
                 y = 100 + Math.floor(Math.random() * 400);
-                Resource.create({
+                Crafty.e('Resource, water-resource').attr({
+                    x: x, y: y
+                }).resource({
                     type: 'water', 
                     quantity: quantity,
-                    capacity: 200,
-                    delay: 2000,
-                    x: x,
-                    y: y
+                    capacity: 150,
+                    duration: 1000
                 });
             }
             
             //  Testing scaffold for collectors
-            collectorBot = new CollectorBot({
-                model: new Collector({
-                    type: 'water',
-                    capacity: 50
-                })
-            });
-            
-            collectorBot.request(resourceList.particles[0], {type: 'water', quantity: 50});
+            collector = Crafty.e('Resource').resource({
+                type: 'water', 
+                capacity: 20,
+                duration: 500
+            }).color('#b03030');
+
+            collector.request(Crafty(Crafty('water-resource')[0]), {type: 'water', quantity: 50});
         });
     });
 }());
