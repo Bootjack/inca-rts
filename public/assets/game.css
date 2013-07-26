@@ -1,10 +1,11 @@
 #cr-stage {
-    background-image: -moz-linear-gradient(top, whitesmoke 20%, white 90%);
+    background: white;
     border: 1px solid lightgray;
     margin: 0 auto;
 }
 
 #spine-out {
+    background: white;
     border: 1px solid lightgray;
     color: gray;
     font: 0.8em/1em monospace;
@@ -17,9 +18,17 @@
 }
 
 body {
-    -webkit-tap-highlight-color: rgba(0,0,0,0);
+    background: white 0 0 no-repeat;
+    background-image: -webkit-linear-gradient(top, whitesmoke 20%, white 90%);
+    background-image: -moz-linear-gradient(top, whitesmoke 20%, white 90%);
+    background-image: linear-gradient(top, whitesmoke 20%, white 90%);
     font: 1em/1.2em 'Helvetica', 'Arial', sans-serif;
     margin: 0;
+    min-height: 100%;
+    min-width: 100%;
+    padding: 0;
+    position: relative;
+    -webkit-tap-highlight-color: rgba(0,0,0,0);
 }
 
 h1 {
