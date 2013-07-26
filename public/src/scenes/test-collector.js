@@ -7,9 +7,10 @@ var $, console, Crafty, require;
         require([
             'src/components/collector',
             'src/components/container',
-            'src/components/resource'
+            'src/components/resource',
+            'src/components/storage'
         ], function () {
-            var collector, i, quantity, type, x, y;
+            var collector, i, quantity, silo, type, x, y;
             
             //  Create 10 resource puddles with an 80% chance of being water
             for (i = 0; i < 10; i += 1) {
@@ -27,6 +28,18 @@ var $, console, Crafty, require;
                     size: 50
                 }).resource().addComponent(type + '-resource');
             }
+
+            //  Create a water storage silo
+            silo = Crafty.e('Storage').attr({
+                x: 300,
+                y: 25
+            }).container({
+                type: 'water',
+                quantity: 0,
+                capacity: 100,
+                duration: 500,
+                size : 50
+            }).storage().addComponent('water-storage');
             
             //  Create a water collector
             collector = Crafty.e('Fourway, Collector').container({
@@ -37,7 +50,7 @@ var $, console, Crafty, require;
             }).fourway(2).collector();
 
             //  The collector requests water from one of the resources
-            collector.request(Crafty(Crafty('water-resource')[0]), {type: 'water', quantity: 20});
+            //collector.request(Crafty(Crafty('water-resource')[0]), {type: 'water', quantity: 20});
 
 
             /*  This is the strangest Crafty quirk by far: the css() function called in render() 

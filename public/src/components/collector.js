@@ -24,7 +24,22 @@ Crafty.c('Collector', {
         
         this.onHit(
             'water-resource',
+            function (colliders) {
+                if (this.state !== this.States.Busy) {
+                    this.request(colliders[0].obj, {type: this.type[0], quantity: this.available()})
+                }
+                this.state = this.States.Busy;
+            },
             function () {
+                this.state = (this.quantity === this.capacity) ? this.States.Full : this.States.Empty;
+            }
+        );
+        this.onHit(
+            'water-storage',
+            function (colliders) {
+                if (this.state !== this.States.Busy) {
+                    this.offer(colliders[0].obj, {type: this.type[0], quantity: this.quantity})
+                }
                 this.state = this.States.Busy;
             },
             function () {

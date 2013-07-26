@@ -9,11 +9,16 @@ Crafty.c('Container', {
     capacity: 1,
     duration: 0,
     size: 10,
+    busy: false,
     
     //  Intialize Container
     init: function () {
         this.requires('Delay');
         this.type = [];
+    },
+    
+    available: function () {
+        return this.capacity - this.quantity;
     },
 
     //  Configure Container
@@ -73,6 +78,7 @@ Crafty.c('Container', {
         var self = this;
         this.busy = true;
         function receipt() {
+            console.log('receipt received');
             self.busy = false;
         }
         this.delay(
@@ -88,10 +94,10 @@ Crafty.c('Container', {
     //  Consider this method private
     _replenish: function (amount) {
         var available, surplus;
-        available = this.capacity - this.quantity;
+        available = this.available();
         surplus = Math.min(0, amount - available);
         this.quantity += Math.min(amount, available);
-        this.trigger('update');	
+        this.trigger('update');
         return surplus;
     },
     
@@ -102,6 +108,7 @@ Crafty.c('Container', {
         this.delay(
             function () {
                 self.busy = false;
+                console.log('delivery received');
                 self._replenish(amount);
                 callback();
             },
