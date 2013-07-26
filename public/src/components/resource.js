@@ -11,27 +11,35 @@ Crafty.c('Resource', {
     size: 20,
     
     init: function () {
-        this.requires('2D, Canvas, Color, Delay')
-            .attr({x: 100, y: 100, w: this.size, h: this.size});
+        this.requires('2D, DOM, Color, Delay')
+            .attr({x: 100, y: 100, w: this.size, h: this.size})
+            .css({'border': '0 solid #f06040'});
     },
 
+    /*  Some of this rendering stuff is starting to get silly. Best to break it out
+     *  into separate components, so each one can render distinctly. */
     resource: function (config) {
         this.type = config.type || this.type;
         this.quantity = config.quantity || this.quantity;
         this.capacity = config.capacity || this.capacity;
         this.duration = config.duration || this.duration;
         this.size = config.size || this.size;
-        this.position = {x: this.x, y: this.y};
-        this.color(this.Colors[this.type]);
+        this.color(this.Colors[this.type] || this.Colors[null]);
         
         this.bind('EnterFrame', function () {
-            var size = this.size * Math.max(0.5, this.quantity / this.capacity);
+            var border, size 
+            size = this.size * Math.max(0.5, this.quantity / this.capacity);
+            border = (this.quantity === this.capacity) ? '3px' : '0';
             this.attr({
-                x: this.position.x - size / 2,
-                y: this.position.y - size / 2,
                 w: size,
                 h: size
+            }).css({
+                'border-radius': size + 'px',
+                'border-width': border,
+                'margin-left': -1 * size/2 + 'px',
+                'margin-top': -1 * size/2 + 'px'
             });
+
         });
         
         return this;
