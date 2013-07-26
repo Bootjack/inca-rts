@@ -23,26 +23,28 @@ define(function() {
         /*  NOTE First attempt tried naming the `collect()` method `load()`, which is already
          *  a Spine.Model method called after create. So, consider that method name reserved. Kthx. */
         collect: function (amount, type) {
-            var surplus;
+            var available, surplus;
             //  TODO test that we don't already have a load
             //  TODO test that we can accept this load type
             this.type = type || this.type;
-
-            this.cargo = Math.min(this.limit, amount);
+            
+            available = this.limit - this.cargo;
+            surplus = Math.max(0, amount - available);
+            this.cargo += Math.min(available, amount);
             this.status = Collector.States.indexOf('Full');
             this.save();
             
             //  Return any surplus
-            surplus = Math.max(0, amount - this.capacity)
             return surplus;
         },
         
         unload: function () {
             //  TODO test that we do have a load to unload
-            //  TODO It takes some time to collect a load, so handle this asynchronously   
+            var delivery = this.cargo;
+            this.cargo = 0;
             this.status = Collector.States.indexOf('Empty');
             this.save();
-            return this.cargo;
+            return delivery;
         }
     });
     
