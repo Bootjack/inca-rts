@@ -1,9 +1,8 @@
-define(['src/models/storage', 'src/controllers/exchanger'], function (Storage, Exchanger) {
+define(['src/models/storage'], function (Storage) {
     'use strict';
 
-    var ResourceParticle = Spine.Controller.sub();
-    ResourceParticle.include(new Exchanger());
-    ResourceParticle.include({
+    var StorageNode = Spine.Controller.sub();
+    StorageNode.include({
         //  Spine controller methods
         init: function () {
             this.model.bind('update', this.proxy(function () {
@@ -12,76 +11,68 @@ define(['src/models/storage', 'src/controllers/exchanger'], function (Storage, E
         },
 
         render: function () {
-            this.el.html(this.model.quantity);
+            var status = this.model.ready ? 'Ready: ' : 'Busy: ';
+            status += this.model.quantity;
+            this.el.html(status);
             return this;
         },
 
-        //  Exchanger methods
-        negotiate: function (manifest, role) {
-            if (!manifest.type || !this.allowed(manifest.type)) {
-                manifest.type = this.type();
+        consider: function (manifest, role) {
+            var accept = false;
+            if (manifest.type === this.model.type && !this.model.busy) {
+                accept = true;
             }
-            
-            if ('target' === role) {
-                if (this.quantity() + manifest.quantity > this.capacity()) {
-                    manifest.quantity = this.capacity() - this.quantity();
-                }
-            } else if ('source' === role) {
-                if (this.quantity() < manifest.quantity) {
-                    manifest.quantity = this.quantity();
-                }
+            return accept;
+        },
+
+        deplete: function (amount, callback) {
+            var model = this.model;
+            model.busy = true;
+            model.save();
+            function receipt() {
+                console.log('receipt received');
+                model.busy = false;
+                model.save();
             }
-            manifest.opinion = 'accept';
-            return manifest;
-        },
-        
-        deliver: function (manifest, callback) {
-            var self = this;
-            Crafty.e('Delay').delay(function () {
-                var packet = {
-                    quantity: self.deplete(manifest.quantity),
-                    type: self.type()
-                };
-                callback(packet);
-            }, this.model.delay);
-        },
-        
-        receive: function (manifest) {
-            var self = this;
-            Crafty.e('Delay').delay(function () {
-                var packet = {
-                    quantity: self.replenish(manifest.quantity),
-                    type: self.type()
-                };
-            }, this.model.delay);
+            Crafty.e('Delay').delay(
+                function () {
+                    callback(model.deplete(amount), receipt);
+                },
+                model.delay
+            );
         },
 
-        //  Game logic methods
-        type: function () {
-            return this.model.type;
-        },
-
-        capacity: function () {
-            return this.model.capacity;
-        },
-
-        allowed: function (type) {
-            return type === this.model.type;
-        },
-        
-        quantity: function () {
-            return this.model.quantity;
+        replenish: function (amount, callback) {
+            var model = this.model;
+            model.busy = true;
+            model.save();
+            Crafty.e('Delay').delay(
+                function () {
+                    console.log('package received');
+                    model.busy = false;
+                    model.replenish(amount);
+                    callback();
+                },
+                model.delay
+            );
         },
         
-        deplete: function (amount) {
-            return this.model.deplete(amount);
+        // Request something from another controller
+        request: function (source, manifest) {
+            var model = this.model;
+            if (source.consider(manifest, 'source')) {
+                source.deplete(manifest.quantity, this.proxy(this.replenish));
+            }
         },
         
-        replenish: function (amount) {
-            this.model.replenish(amount);
-            return this;
-        }
+        // Offer something to another controller
+        offer: function (target, manifest) {
+            var model = this.model;
+            if (target.consider(manifest, 'target')) {
+                this.deplete(manifest.quantity, target.proxy(target.replenish));
+            }
+        },
     });
     
-    return ResourceParticle;
+    return StorageNode;
 });

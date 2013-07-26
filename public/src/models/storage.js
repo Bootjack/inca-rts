@@ -2,13 +2,23 @@ define(function () {
     'use strict';
     
     var Storage = Spine.Model.sub();
-    Storage.configure('Storage', 'type', 'delay', 'capacity', 'quantity');
+    Storage.configure('Storage', 'type',  'quantity', 'capacity', 'delay', 'x', 'y', 'width', 'height');
     
     Storage.include({
-        type: 'air',
-        delay: 1000,
-        capacity: 100,
+        type: null,
         quantity: 0,
+        capacity: 1,
+        delay: 1000,
+        busy: false,
+        
+        x: 0,
+        y: 0,
+        width: 20,
+        height: 20,
+        
+        full: function () {
+            return this.quantity === this.capacity;
+        },
         
         deplete: function (amount) {
             amount = Math.min(amount, this.quantity);
@@ -18,10 +28,14 @@ define(function () {
         },
         
         replenish: function (amount) {
-            this.quantity += amount;
+            var available, surplus;
+            available = this.capacity - this.quantity;
+            surplus = Math.min(0, amount - available);
+            this.quantity += Math.min(amount, available);
             this.save();
-            return this;
+            return surplus;
         }
     });
+    
     return Storage;
 });

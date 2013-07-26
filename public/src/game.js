@@ -46,13 +46,22 @@ var require, window;
                         e.preventDefault();
                         Crafty.scene('test-processor');
                     });
-            
+
+                Crafty.e('2D, HTML, Mouse')
+                    .attr({x: 25, y: 175, w: 250, h: 25})
+                    .replace('<a href="#" class="scene-link">Storage Test</a>')
+                    .bind('Click', function (e) {
+                        e.preventDefault();
+                        Crafty.scene('test-storage');
+                    });
+                
                 //when everything is loaded, run the main scene
                 require([
                     "src/scenes/main",
                     'src/scenes/test-resource',
                     'src/scenes/test-collector',
-                    'src/scenes/test-processor'
+                    'src/scenes/test-processor',
+                    'src/scenes/test-storage'
                 ], function () {
                     if (config.scene !== undefined) {
                         Crafty.scene(config.scene);

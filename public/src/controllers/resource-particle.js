@@ -1,49 +1,21 @@
-define(['src/models/resource', 'src/controllers/exchanger'], function (Resource, Exchanger) {
-    var ResourceParticle;
+define(['src/models/resource', 'src/controllers/storage-node'], function (Resource, StorageNode) {
+    var ResourceParticle = StorageNode.sub();
     
-    ResourceParticle = Spine.Controller.sub();
-    ResourceParticle.include(new Exchanger());
-    ResourceParticle.include({    
+    ResourceParticle.include({
         init: function () {
+            this.entity = Crafty.e('2D, Canvas, Circle, Color')
+                .attr({x: this.model.x, y: this.model.y, w: this.model.width, h: this.model.height});
             this.model.bind('update', this.proxy(function () {
                 this.render();
             }));
         },
-        
-        type: function() {
-            return this.model.type;
-        },
-        
-        quantity: function () {
-            return this.model.quantity;
-        },
-        
-        deplete: function (amount) {
-            return this.model.deplete(amount);
-        },
-        
-        replenish: function (amount) {
-            this.model.replenish(amount);
-            return this;
-        },
-
-        negotiate: function (manifest) {
-            return manifest;
-        },
-        
-        deliver: function (manifest, callback) {
-            var self = this;
-            Crafty.e('Delay').delay(function () {
-                var packet = {
-                    quantity: self.deplete(manifest.quantity),
-                    type: self.type()
-                };
-                callback(packet);
-            }, 1000);
-        },
-        
         render: function () {
-            this.el.html(this.model.quantity);
+            this.entity.attr({
+                x: this.model.x,
+                y: this.model.y,
+                w: this.model.width * this.model.quantity / this.model.capacity,
+                h: this.model.height * this.model.quantity / this.model.capacity
+            });
             return this;
         }
     });

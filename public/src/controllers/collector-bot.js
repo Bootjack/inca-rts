@@ -1,36 +1,16 @@
-define(['src/models/collector', 'src/controllers/exchanger'], function (Collector, Exchanger) {
-    var CollectorController;
+define(['src/models/collector', 'src/controllers/storage-node'], function (Collector, StorageNode) {
+    var CollectorController = StorageNode.sub();
     
-    CollectorController = Spine.Controller.sub();
-    CollectorController.include(new Exchanger());
-    CollectorController.include({   
-        //  Core Controller Methods
-        init: function () {            
-            this.model.bind('update', this.proxy(this.render));
-        },
-
+    CollectorController.sub({
+        //  Controller Methods
         render: function () {
-            console.log('rendering collector');
-            var status = Collector.States[this.model.status];
-            if (Collector.States.indexOf('Full') === this.model.status) {
-                status += ' of ' + this.model.cargo + ' ' + this.model.type;
+            var status = 'Empty';
+            if (this.model.full()) {
+                status = 'Full of ' + this.model.quantity + ' ' + this.model.type;
+            } else if (this.model.quantity > 0) {
+                status = 'Carrying ' + this.model.quantity + ' ' + this.model.type;
             }
             this.el.html(status);
-            return this;
-        },
-        
-        //  Exchanger Methods
-        receive: function (packet) {
-            this.collect(packet);
-        },
-        
-        //  Game Logic Methods
-        collect: function (packet, callback) {
-            //  It takes some time to collect a load, so handle that asynchronously
-            Crafty.e('Delay').delay(this.proxy(function () {
-                this.model.collect(packet.quantity, packet.type);
-                if ('function' === typeof(callback)) callback();
-            }), this.model.delay);
             return this;
         }
     });
