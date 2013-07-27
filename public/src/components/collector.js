@@ -1,7 +1,7 @@
 Crafty.c('Collector', {
     States: {
         'Empty': {index: 0, name: 'Empty', color: '#803030'},
-        'Busy': {index: 0, name: 'Empty', color: '#e0e000'},
+        'Busy': {index: 0, name: 'Empty', color: '#f0d000'},
         'Full': {index: 1, name: 'Full', color: '#c03030'}
     },
 
@@ -25,7 +25,7 @@ Crafty.c('Collector', {
         this.onHit(
             'water-resource',
             function (colliders) {
-                if (this.state !== this.States.Busy) {
+                if (!this.exchange && !this.busy) {
                     this.request(colliders[0].obj, {type: this.type[0], quantity: this.available()})
                 }
                 this.state = this.States.Busy;
@@ -38,12 +38,13 @@ Crafty.c('Collector', {
         this.onHit(
             'water-storage',
             function (colliders) {
-                if (!this.exchange && ! this.busy) {
+                if (!this.exchange && !this.busy) {
                     this.offer(colliders[0].obj, {type: this.type[0], quantity: this.quantity})
                     this.state = this.States.Busy;
                 }
             },
             function () {
+                console.log(!!this.exchange);
                 if (this.exchange) this.exchange.finish();
                 this.state = (this.quantity === this.capacity) ? this.States.Full : this.States.Empty;
             }

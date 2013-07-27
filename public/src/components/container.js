@@ -7,12 +7,12 @@ Crafty.c('Exchange', {
         this.manifest = config.manifest;
 
         if (this.source.consider(self.manifest, 'source') && this.target.consider(self.manifest, 'target')) {
-            this.sentListener = this.source.bind('exchange.sent', function (exchange) {
+            this.source.bind('exchange.sent', function (exchange) {
                 if (exchange === self) {
                     self.target.receive(exchange);
                 }
             });
-            this.receivedListener = this.target.bind('exchange.received', function (exchange) {
+            this.target.bind('exchange.received', function (exchange) {
                 if (exchange === self) {
                     self.trigger('exchange.completed');
                     self.finish();
@@ -25,6 +25,7 @@ Crafty.c('Exchange', {
             this.trigger('exchange.aborted');
             this.finish();
         }
+        return this;
     },
     
     finish: function () {
@@ -32,6 +33,8 @@ Crafty.c('Exchange', {
         this.target.unbind('exchange.received');
         this.source.busy = false;
         this.target.busy = false;
+        delete this.source.exchange;
+        delete this.target.exchange;
         this.destroy();
     }
 });
@@ -85,24 +88,20 @@ Crafty.c('Container', {
 
     // Initiate asynchronous request from another Container
     request: function (source, manifest) {
-        if (!this.exchange) {
-            this.exchange = Crafty.e('Exchange').exchange({
-                target: this,
-                source: source,
-                manifest: manifest
-            });
-        }
+        this.exchange = Crafty.e('Exchange').exchange({
+            target: this,
+            source: source,
+            manifest: manifest
+        });
     },
     
     // Initiate asynchronous offer to another Container
     offer: function (target, manifest) {
-        if (!this.exchange) {
-            this.exchange = Crafty.e('Exchange').exchange({
-                target: target,
-                source: this,
-                manifest: manifest
-            });
-        }
+        this.exchange = Crafty.e('Exchange').exchange({
+            target: target,
+            source: this,
+            manifest: manifest
+        });
     },
     
     //  Schedule future replenishment with callback indicating receipt to other Container
