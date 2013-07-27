@@ -31,18 +31,20 @@ Crafty.c('Collector', {
                 this.state = this.States.Busy;
             },
             function () {
+                if (this.exchange) this.exchange.finish();
                 this.state = (this.quantity === this.capacity) ? this.States.Full : this.States.Empty;
             }
         );
         this.onHit(
             'water-storage',
             function (colliders) {
-                if (this.state !== this.States.Busy) {
+                if (!this.exchange && ! this.busy) {
                     this.offer(colliders[0].obj, {type: this.type[0], quantity: this.quantity})
+                    this.state = this.States.Busy;
                 }
-                this.state = this.States.Busy;
             },
             function () {
+                if (this.exchange) this.exchange.finish();
                 this.state = (this.quantity === this.capacity) ? this.States.Full : this.States.Empty;
             }
         );

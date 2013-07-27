@@ -36,7 +36,7 @@ var $, console, Crafty, require;
             }).container({
                 type: 'water',
                 quantity: 0,
-                capacity: 100,
+                capacity: 200,
                 duration: 500,
                 size : 50
             }).storage().addComponent('water-storage');
@@ -44,7 +44,7 @@ var $, console, Crafty, require;
             //  Create a water collector
             collector = Crafty.e('Fourway, Collector').container({
                 type: 'water', 
-                capacity: 20,
+                capacity: 5,
                 duration: 500,
                 size : 10
             }).fourway(2).collector();
