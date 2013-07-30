@@ -7,10 +7,11 @@ var $, console, Crafty, require;
         require([
             'src/components/collector',
             'src/components/container',
+            'src/components/migrator',
             'src/components/resource',
             'src/components/storage'
         ], function () {
-            var collector, i, quantity, silo, type, x, y;
+            var collector, distance, i, origin, quantity, silo, type, vector, w, water, x, y;
             
             //  Create 10 resource puddles with an 80% chance of being water
             for (i = 0; i < 10; i += 1) {
@@ -42,13 +43,20 @@ var $, console, Crafty, require;
             }).storage().addComponent('water-storage');
             
             //  Create a water collector
-            collector = Crafty.e('Fourway, Collector').container({
+            Crafty.e('Collector').container({
                 type: 'water', 
                 capacity: 5,
                 duration: 500,
                 size : 10
-            }).fourway(2).collector();
+            }).migrator({speed: 4}).collector();
 
+            Crafty.e('Collector').container({
+                type: 'water', 
+                capacity: 5,
+                duration: 500,
+                size : 10
+            }).migrator({speed: 4}).collector();
+            
             //  The collector requests water from one of the resources
             //collector.request(Crafty(Crafty('water-resource')[0]), {type: 'water', quantity: 20});
 
@@ -61,7 +69,6 @@ var $, console, Crafty, require;
                     this.render();
                 })
             }, 10);
-
         });
     });
 }());

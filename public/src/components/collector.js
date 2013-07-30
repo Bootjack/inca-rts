@@ -7,7 +7,7 @@ Crafty.c('Collector', {
 
     init: function () {
         var self = this;
-        this.requires('2D, DOM, Color, Container')
+        this.requires('2D, DOM, Color, Container, Migrator')
             .attr({x: 100, y: 100, w: this.size, h: this.size})
             .css({'border': '2px solid #f06040', 'border-radius': this.size + 'px'})
             .addComponent('Collision');
@@ -19,8 +19,36 @@ Crafty.c('Collector', {
         });        
         
         this.bind('update', function (){
-            this.state = (this.quantity === this.capacity) ? this.States.Full : this.States.Empty;        
-        })        
+            this.state = (this.quantity === this.capacity) ? this.States.Full : this.States.Empty;
+        });
+        
+        this.bind('exchange.completed', function () {
+            console.log('exchange completed');
+            if (this.States.Full === this.state) {
+                this.migrateToNearest('water-storage', function (target) {
+                    if (target.available() <= 0) console.log('test failed');
+                    return target.available() > 0;
+                });
+            } else if (this.States.Empty === this.state) {
+                this.migrateToNearest('water-resource', function (target) {
+                    if (target.available() <= 0) console.log('test failed');
+                    return target.quantity > 0;
+                });
+            }
+        });
+
+        this.bind('exchange.aborted', function () {
+            console.log('exchange aborted');
+            if (this.States.Full === this.state) {
+                this.migrateToNearest('water-storage', function (target) {
+                    return target.available() > 0;
+                });
+            } else if (this.States.Empty === this.state) {
+                this.migrateToNearest('water-resource', function (target) {
+                    return target.quantity > 0;
+                });
+            }
+        });
         
         this.onHit(
             'water-resource',
@@ -44,7 +72,6 @@ Crafty.c('Collector', {
                 }
             },
             function () {
-                console.log(!!this.exchange);
                 if (this.exchange) this.exchange.finish();
                 this.state = (this.quantity === this.capacity) ? this.States.Full : this.States.Empty;
             }
@@ -54,7 +81,7 @@ Crafty.c('Collector', {
     collector: function (config) {
         config = config || {};    
         if (this.States.hasOwnProperty(config.state)) this.state = this.States[config.state];
-        this.render();
+        this.trigger('exchange.completed');
         return this;
     },
 

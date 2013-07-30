@@ -14,7 +14,8 @@ Crafty.c('Exchange', {
             });
             this.target.bind('exchange.received', function (exchange) {
                 if (exchange === self) {
-                    self.trigger('exchange.completed');
+                    self.source.trigger('exchange.completed');
+                    self.target.trigger('exchange.completed');
                     self.finish();
                 }
             });
@@ -22,7 +23,8 @@ Crafty.c('Exchange', {
             this.target.busy = true;
             this.source.send(this);
         } else {
-            this.trigger('exchange.aborted');
+            this.source.trigger('exchange.aborted');
+            this.target.trigger('exchange.aborted');
             this.finish();
         }
         return this;
@@ -135,7 +137,6 @@ Crafty.c('Container', {
         var available, surplus;
         available = this.available();
         surplus = Math.min(0, amount - available);
-        console.log('amount: ' + amount + ' or available: ' + available);
         this.quantity += Math.min(amount, available);
         this.trigger('update');
         return surplus;
