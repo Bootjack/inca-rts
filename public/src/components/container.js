@@ -23,6 +23,7 @@ Crafty.c('Exchange', {
             this.target.busy = true;
             this.source.send(this);
         } else {
+            console.log('exchange aborted');
             this.source.trigger('exchange.aborted');
             this.target.trigger('exchange.aborted');
             this.finish();
@@ -81,7 +82,7 @@ Crafty.c('Container', {
         if (-1 !== this.type.indexOf(manifest.type)) {
             if ('target' === role && this.available() >= manifest.quantity) {
                 accept = true;
-            } else if ('source' === role && this.quantity >= manifest.quantity) {
+            } else if ('source' === role && this.quantity > 0) {
                 accept = true;
             }
         }
@@ -123,6 +124,7 @@ Crafty.c('Container', {
         var self = this;
         this.delay(
             function () {
+                console.log('exchange sent');
                 exchange.manifest.quantity = self._deplete(exchange.manifest.quantity);
                 self.trigger('exchange.sent', exchange);
             },

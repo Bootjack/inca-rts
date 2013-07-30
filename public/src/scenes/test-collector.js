@@ -45,17 +45,20 @@ var $, console, Crafty, require;
             //  Create a water collector
             Crafty.e('Collector').container({
                 type: 'water', 
-                capacity: 5,
+                capacity: 15,
                 duration: 500,
                 size : 10
-            }).migrator({speed: 4}).collector();
+            }).collector().migrator({speed: 10});
 
-            Crafty.e('Collector').container({
+            Crafty.e('Collector').attr({
+                x: 450,
+                y:125
+            }).container({
                 type: 'water', 
                 capacity: 5,
                 duration: 500,
                 size : 10
-            }).migrator({speed: 4}).collector();
+            }).collector().migrator({speed: 4});
             
             //  The collector requests water from one of the resources
             //collector.request(Crafty(Crafty('water-resource')[0]), {type: 'water', quantity: 20});
