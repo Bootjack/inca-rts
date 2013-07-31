@@ -6,37 +6,43 @@ Crafty.c('Exchange', {
         this.target = config.target;
         this.manifest = config.manifest;
 
-        if (this.source.consider(self.manifest, 'source') && this.target.consider(self.manifest, 'target')) {
-            this.source.bind('exchange.sent', function (exchange) {
-                if (exchange === self) {
-                    self.target.receive(exchange);
-                }
-            });
-            this.target.bind('exchange.received', function (exchange) {
-                if (exchange === self) {
-                    self.source.trigger('exchange.completed');
-                    self.target.trigger('exchange.completed');
-                    self.finish();
-                }
-            });
+        if (this.source.consider(self, 'source') && this.target.consider(self, 'target')) {
             this.source.busy = true;
             this.target.busy = true;
+            function send(exchange) {
+                if (exchange[0] === self[0]) {
+                    self.target.receive(exchange);
+                }
+            };
+            function receive(exchange) {
+                if (exchange[0] === self[0]) {
+                    self.source.trigger('exchange.completed', this);
+                    self.target.trigger('exchange.completed', this);
+                    self.finish();
+                }
+            };
+            this.send = send;
+            this.receive = receive;
+            this.source.bind('exchange.sent', send);
+            this.target.bind('exchange.received', receive);
             this.source.send(this);
         } else {
-            this.source.trigger('exchange.aborted');
-            this.target.trigger('exchange.aborted');
+            this.source.trigger('exchange.aborted', this);
+            this.target.trigger('exchange.aborted', this);
             this.finish();
         }
         return this;
     },
     
     finish: function () {
-        this.source.unbind('exchange.sent');
-        this.target.unbind('exchange.received');
-        this.source.busy = false;
-        this.target.busy = false;
+        this.source.unbind('exchange.sent', this.send);
+        this.target.unbind('exchange.received', this.receive);
         delete this.source.exchange;
         delete this.target.exchange;
+        this.source.busy = false;
+        this.target.busy = false;
+        this.source.trigger('update');
+        this.target.trigger('update');
         this.destroy();
     }
 });
@@ -76,12 +82,12 @@ Crafty.c('Container', {
 
     //  Evaluate a manifest and return Boolean representing acceptance of the transaction.
     //  This method will likely be overridden by a more specific controller.
-    consider: function (manifest, role) {
+    consider: function (exchange, role) {
         var accept = false;
-        if (-1 !== this.type.indexOf(manifest.type)) {
-            if ('target' === role && this.available() >= manifest.quantity) {
+        if (!this.busy && -1 !== this.type.indexOf(exchange.manifest.type)) {
+            if ('target' === role && this.available() >= exchange.manifest.quantity) {
                 accept = true;
-            } else if ('source' === role && this.quantity >= manifest.quantity) {
+            } else if ('source' === role && this.quantity > 0) {
                 accept = true;
             }
         }
@@ -109,6 +115,7 @@ Crafty.c('Container', {
     //  Schedule future replenishment with callback indicating receipt to other Container
     receive: function (exchange) {
         var self = this;
+        this.trigger('update');
         this.delay(
             function () {
                 self._replenish(exchange.manifest.quantity);
@@ -121,6 +128,7 @@ Crafty.c('Container', {
     //  Schedule a future depletion with a callback for delivery to other Container
     send: function (exchange) {
         var self = this;
+        this.trigger('update');
         this.delay(
             function () {
                 exchange.manifest.quantity = self._deplete(exchange.manifest.quantity);

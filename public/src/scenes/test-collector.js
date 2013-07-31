@@ -11,7 +11,7 @@ var $, console, Crafty, require;
             'src/components/resource',
             'src/components/storage'
         ], function () {
-            var collector, distance, i, origin, quantity, silo, type, vector, w, water, x, y;
+            var collector, distance, e, i, origin, quantity, silo, type, vector, w, water, x, y;
             
             //  Create 10 resource puddles with an 80% chance of being water
             for (i = 0; i < 10; i += 1) {
@@ -19,7 +19,7 @@ var $, console, Crafty, require;
                 x = 100 + Math.floor(Math.random() * 600);
                 y = 100 + Math.floor(Math.random() * 400);
                 type = (Math.random() > 0.8) ? 'dirt' : 'water';
-                Crafty.e('Resource').attr({
+                e = Crafty.e('Mouse, Resource').attr({
                     x: x, y: y
                 }).container({
                     type: type, 
@@ -28,6 +28,17 @@ var $, console, Crafty, require;
                     duration: 1000,
                     size: 50
                 }).resource().addComponent(type + '-resource');
+                e.bind(
+                    'Click', 
+                    (function () {
+                        var self = e;
+                        return function () {
+                            if (self.busy) self.busy = false;
+                            else self.busy = true;
+                            self.trigger('update');
+                        };
+                    }())
+                );
             }
 
             //  Create a water storage silo
@@ -40,7 +51,7 @@ var $, console, Crafty, require;
                 capacity: 200,
                 duration: 500,
                 size : 50
-            }).storage().addComponent('water-storage');
+            }).storage().addComponent('water-storage')
             
             //  Create a water collector
             Crafty.e('Collector').container({
@@ -50,13 +61,16 @@ var $, console, Crafty, require;
                 size : 10
             }).migrator({speed: 4}).collector();
 
-            Crafty.e('Collector').container({
+            Crafty.e('Collector').attr({
+                x: 500,
+                y: 400
+            }).container({
                 type: 'water', 
                 capacity: 5,
                 duration: 500,
                 size : 10
             }).migrator({speed: 4}).collector();
-            
+
             //  The collector requests water from one of the resources
             //collector.request(Crafty(Crafty('water-resource')[0]), {type: 'water', quantity: 20});
 

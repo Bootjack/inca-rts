@@ -12,7 +12,7 @@ Crafty.c('Resource', {
         self = this;
         config = config || {};
         color = '#000000';
-        if (this.Colors.hasOwnProperty(this.type)) color = this.Colors[(this.type[0])];
+        if (this.Colors.hasOwnProperty(this.type)) color = this.Colors[this.type[0]];
         this.addComponent('Collision');
         this.attr({
             w: this.size,
@@ -25,8 +25,11 @@ Crafty.c('Resource', {
     },
     
     render: function () {
-        var fullness = Math.min(1.0, 0.2 + this.quantity / this.capacity);
+        var color, fullness;
+        color = this.busy ? 'yellow' : this.Colors[this.type[0]];;
+        fullness = Math.min(1.0, 0.2 + this.quantity / this.capacity);
         this.css({
+            'background-color': color,
             'opacity': fullness.toString()
         });
         return this;
