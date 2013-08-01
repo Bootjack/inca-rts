@@ -22,64 +22,21 @@ Crafty.c('Collector', {
             this.state = (this.quantity === this.capacity) ? this.States.Full : this.States.Empty;
         });
         
-        this.bind('exchange.completed', function (exchange) {
-            if (this.available()) {
-                this.migrateToNearest('water-resource', function (target) {
-                    var test = target.quantity > 0;
-                    return test;
-                });
-            } else {
-                this.migrateToNearest('water-storage', function (target) {
-                    var test = target.available() > 0;
-                    return test;
-                });
-            }
+        this.bind('exchange.started', function () {
+            self.bind('exchange.ended', this.findNewResource);
         });
-
-        this.bind('exchange.aborted', function (exchange) {
-            this.busy = false;
-            console.log(this);
-            this.delay(function () {
-                this.collectorOnMigrationComplete();
-            }, this.duration * 1.1);
-        });
+        
+        this.bind('exchange.rejected', function () {
+            console.log(this[0] + ' exchange rejected');
+            self.delay(self.findNewResource, self.exchangeDelay);
+        })
         
         this.bind('migration.completed', this.collectorOnMigrationComplete);
-        
-        /*
-        this.onHit(
-            'water-resource',
-            function (colliders) {
-                if (!this.exchange && !this.busy) {
-                    this.request(colliders[0].obj, {type: this.type[0], quantity: this.available()})
-                }
-                this.state = this.States.Busy;
-            },
-            function () {
-                if (this.exchange) this.exchange.finish();
-                this.state = (this.quantity === this.capacity) ? this.States.Full : this.States.Empty;
-            }
-        );
-        this.onHit(
-            'water-storage',
-            function (colliders) {
-                if (!this.exchange && !this.busy) {
-                    this.offer(colliders[0].obj, {type: this.type[0], quantity: this.quantity})
-                    this.state = this.States.Busy;
-                }
-            },
-            function () {
-                if (this.exchange) this.exchange.finish();
-                this.state = (this.quantity === this.capacity) ? this.States.Full : this.States.Empty;
-            }
-        );
-        */
     },
 
     collector: function (config) {
         config = config || {};    
         if (this.States.hasOwnProperty(config.state)) this.state = this.States[config.state];
-        this.trigger('exchange.completed');
         return this;
     },
 
@@ -90,14 +47,28 @@ Crafty.c('Collector', {
     },
     
     collectorOnMigrationComplete: function () {
-        console.log('migration complete');
         if (!this.busy) {
             if (this.target.has('Resource')) {
-                this.request(this.target, {type: this.type[0], quantity: this.available()})
+                this.request(this.target, {type: this.types[0], quantity: this.available()})
             } else if (this.target.has('Storage')) {
-                this.offer(this.target, {type: this.type[0], quantity: this.quantity})
+                this.offer(this.target, {type: this.types[0], quantity: this.quantity})
             }
-        }        
+        }
+    },
+    
+    findNewResource: function () {
+        var oldTarget = this.target;
+        if (this.available()) {
+            this.migrateToNearest('water-resource', function (target) {
+                var test = target.quantity > 0 && target !== oldTarget;
+                return test;
+            });
+        } else {
+            this.migrateToNearest('water-storage', function (target) {
+                var test = target.available() > 0;
+                return test;
+            });
+        }
     }
 });
         

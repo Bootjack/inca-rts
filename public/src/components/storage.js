@@ -15,7 +15,7 @@ Crafty.c('Storage', {
         self = this;
         config = config || {};
         color = '#000000';
-        if (this.Colors.hasOwnProperty(this.type)) color = this.Colors[(this.type[0])];
+        if (this.Colors.hasOwnProperty(this.types[0])) color = this.Colors[(this.types[0])];
         this.addComponent('Collision');
         this.attr({
             w: this.size,

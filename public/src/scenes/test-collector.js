@@ -25,7 +25,7 @@ var $, console, Crafty, require;
                     type: type, 
                     quantity: quantity,
                     capacity: 150,
-                    duration: 1000,
+                    exchangeDelay: 1000,
                     size: 50
                 }).resource().addComponent(type + '-resource');
                 e.bind(
@@ -43,37 +43,47 @@ var $, console, Crafty, require;
 
             //  Create a water storage silo
             silo = Crafty.e('Storage').attr({
-                x: 300,
+                x: 100,
                 y: 25
             }).container({
                 type: 'water',
                 quantity: 0,
                 capacity: 200,
-                duration: 500,
+                exchangeDelay: 500,
+                size : 50
+            }).storage().addComponent('water-storage')
+
+            //  Create a water storage silo
+            silo = Crafty.e('Storage').attr({
+                x: 600,
+                y: 25
+            }).container({
+                type: 'water',
+                quantity: 0,
+                capacity: 200,
+                exchangeDelay: 500,
                 size : 50
             }).storage().addComponent('water-storage')
             
-            //  Create a water collector
-            Crafty.e('Collector').container({
-                type: 'water', 
-                capacity: 5,
-                duration: 500,
-                size : 10
-            }).migrator({speed: 4}).collector();
-
-            Crafty.e('Collector').attr({
-                x: 500,
-                y: 400
-            }).container({
-                type: 'water', 
-                capacity: 5,
-                duration: 500,
-                size : 10
-            }).migrator({speed: 4}).collector();
-
+            for (i = 0; i < 10; i += 1) {
+                x = 100 + Math.floor(Math.random() * 600);
+                y = 100 + Math.floor(Math.random() * 400);
+                //  Create a water collector
+                Crafty.e('Collector').attr({
+                    x: x,
+                    y: y
+                }).container({
+                    type: 'water', 
+                    capacity: 5,
+                    exchangeDelay: 500,
+                    size : 10
+                }).migrator({
+                    speed: 4
+                }).collector().migrateToNearest('water-resource');
+            }
+            
             //  The collector requests water from one of the resources
             //collector.request(Crafty(Crafty('water-resource')[0]), {type: 'water', quantity: 20});
-
 
             /*  This is the strangest Crafty quirk by far: the css() function called in render() 
              *  doesn't update during initialization and configuration. It won't even update in the
