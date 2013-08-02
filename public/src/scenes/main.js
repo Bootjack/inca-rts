@@ -1,35 +1,8 @@
 Crafty.scene('main', function() {
-    require([
-        'src/models/resource',
-        'src/controllers/resource-particle',
-        'src/controllers/resource-list',
-        
-        'src/models/processor',
-        'src/controllers/processor-node',
-        'src/controllers/processor-list',
-        
-        'src/models/collector',
-        'src/controllers/collector-bot'
-    ], function (
-        Resource, 
-        ResourceParticle, 
-        ResourceList,
-        Processor,
-        ProcessorNode,
-        ProcessorList,
-        Collector,
-        CollectorBot
+    require([], function (
     ) {
         var resourceList, processorList, water, random, random2, x;
-
-        //  Testing continous asynchronisity (gets really annoying...)
-        /*
-        x = 0;
-        Crafty.e('Delay').delay(function () {
-            console.log(x += 1);
-        }, 10, 100);
-        */
-  
+        
         //  Testing scaffold for resources
   	    resourceList = new ResourceList({
   	        el: $('#resource-list')
@@ -47,36 +20,6 @@ Crafty.scene('main', function() {
             random = Math.floor(10 - Math.random() * 20);
             Resource.create({quantity: 100 + random, type: 'water'});
         }
-        /*
-        Crafty.e('Delay').delay(function () {
-            resourceList.models[3].deplete(30);
-        }, 1000, 5);
-        */
-
-
-        //  Testing scaffold for processors
-        /*
-        processorList = new ProcessorList({
-            el: $('#processor-list')
-        });
-        processorList.render();
-        
-        Processor.bind('create', function (model) {
-            var processorNode = new ProcessorNode({
-                el: $('<p>'),
-                model: model
-            });
-            $('#resource-map').append(processorNode.render().el);
-            processorList.add(model);
-        });
-        for (i = 0; i < 4; i += 1) {
-            random = Math.floor( Math.random * 8 + 3 ); // capacity
-            random2 = Math.floor( 10 + Math.random() * random );
-            
-            Processor.create({capacity: random, rate: random2});
-        }
-        processorList.models[2].startProcessing();
-        */
         
         //  Testing scaffold for collectors
         var collectorBot;

@@ -1,4 +1,5 @@
-var Crafty, exports;
+var Crafty;
+
 (function () {
     'use strict';
  
