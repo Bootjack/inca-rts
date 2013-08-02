@@ -61,7 +61,7 @@ require([
             if (!this.busy) {
                 if (this.target.has('Resource')) {
                     this.request(this.target, {type: this.types[0], quantity: this.available()});
-                } else if (this.target.has('Storage')) {
+                } else if (this.target.has('Storage') || this.target.has('Processor')) {
                     this.offer(this.target, {type: this.types[0], quantity: this.quantity});
                 }
             }
@@ -75,7 +75,7 @@ require([
                     return test;
                 });
             } else {
-                this.migrateToNearest('water-storage', function (target) {
+                this.migrateToNearest('water-processor, water-storage', function (target) {
                     var test = target.available() > 0;
                     return test;
                 });

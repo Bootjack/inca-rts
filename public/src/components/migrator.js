@@ -77,6 +77,8 @@ var Crafty;
                         
                         //  Set a reference to the current target for use by other entity logic
                         this.target = t;
+                        
+                        //  Go to there
                         this.migrate(vector);
                     }
                 }

@@ -3,11 +3,11 @@ var Crafty, require;
 require([
     'src/components/collector',
     'src/components/resource',
-    'src/components/storage'
+    'src/components/processor'
 ], function () {
     'use strict';
     
-    Crafty.scene('test-collector', function () {
+    Crafty.scene('test-processor', function () {
         var collector, distance, e, i, origin, quantity, silo, type, vector, w, water, x, y;
         
         e = Crafty.e('Mouse, Resource').attr({
@@ -36,16 +36,17 @@ require([
         );
 
         //  Create a water storage silo
-        silo = Crafty.e('Storage').attr({
+        silo = Crafty.e('Processor').attr({
             x: 300,
             y: 200
         }).container({
             type: 'water',
             quantity: 0,
-            capacity: 200,
+            capacity: 50,
             exchangeDelay: 500,
+            processDelay: 500,
             size : 50
-        }).storage().addComponent('water-storage');
+        }).processor().addComponent('water-processor');
         
         Crafty.e('Collector').attr({
             x: 50,
