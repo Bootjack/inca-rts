@@ -22,46 +22,29 @@ var require, window;
           
             //the loading screen - that will be display while assets loaded
             Crafty.scene("loading", function () {
-                
-                Crafty.e('2D, HTML, Mouse')
-                    .attr({x: 25, y: 25, w: 250, h: 25})
-                    .replace('<a href="#" class="scene-link">Resource Test</a>')
-                    .bind('Click', function (e) {
-                        e.preventDefault();
-                        Crafty.scene('test-resource');
-                    });
     
                 Crafty.e('2D, HTML, Mouse')
-                    .attr({x: 25, y: 75, w: 250, h: 25})
+                    .attr({x: 25, y: 25, w: 250, h: 25})
                     .replace('<a href="#" class="scene-link">Collector Test</a>')
                     .bind('Click', function (e) {
                         e.preventDefault();
                         Crafty.scene('test-collector');
                     });
     
-                Crafty.e('2D, HTML, Mouse')
-                    .attr({x: 25, y: 125, w: 250, h: 25})
-                    .replace('<a href="#" class="scene-link">Processor Test</a>')
-                    .bind('Click', function (e) {
-                        e.preventDefault();
-                        Crafty.scene('test-processor');
-                    });
 
                 Crafty.e('2D, HTML, Mouse')
-                    .attr({x: 25, y: 175, w: 250, h: 25})
-                    .replace('<a href="#" class="scene-link">Storage Test</a>')
+                    .attr({x: 25, y: 75, w: 250, h: 25})
+                    .replace('<a href="#" class="scene-link">Swarm Test</a>')
                     .bind('Click', function (e) {
                         e.preventDefault();
-                        Crafty.scene('test-storage');
+                        Crafty.scene('test-swarm');
                     });
-                
+
                 //when everything is loaded, run the main scene
                 require([
                     "src/scenes/main",
-                    'src/scenes/test-resource',
                     'src/scenes/test-collector',
-                    'src/scenes/test-processor',
-                    'src/scenes/test-storage'
+//                    'src/scenes/test-swarm'
                 ], function () {
                     if (config.scene !== undefined) {
                         Crafty.scene(config.scene);
