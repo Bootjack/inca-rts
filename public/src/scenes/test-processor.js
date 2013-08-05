@@ -44,9 +44,10 @@ require([
             quantity: 0,
             capacity: 50,
             exchangeDelay: 500,
-            processDelay: 500,
             size : 50
-        }).processor().addComponent('water-processor');
+        }).processor({
+            processDelay: 5000,
+        }).addComponent('water-processor');
         
         Crafty.e('Collector').attr({
             x: 50,

@@ -21,6 +21,8 @@ require([
                 .addComponent('Collision');
             
             this.state = this.States.Empty;
+            this.fromSelector = 'Resource';
+            this.toSelector = 'Storage';
 
             this.bind('EnterFrame', function () {
                 this.render();
@@ -46,6 +48,9 @@ require([
             if (this.States.hasOwnProperty(config.state)) {
                 this.state = this.States[config.state];
             }
+            this.fromSelector = config.fromSelector || this.fromSelector;
+            this.toSelector = config.toSelector || this.toSelector;
+            this.migrateToNearest(this.fromSelector)
             return this;
         },
     
@@ -59,9 +64,9 @@ require([
         
         collectorOnMigrationComplete: function () {
             if (!this.busy) {
-                if (this.target.has('Resource')) {
+                if (this.target.has(this.fromSelector)) {
                     this.request(this.target, {type: this.types[0], quantity: this.available()});
-                } else if (this.target.has('Storage') || this.target.has('Processor')) {
+                } else {
                     this.offer(this.target, {type: this.types[0], quantity: this.quantity});
                 }
             }
@@ -70,12 +75,12 @@ require([
         findNewResource: function () {
             var oldTarget = this.target;
             if (this.available()) {
-                this.migrateToNearest('water-resource', function (target) {
+                this.migrateToNearest(this.fromSelector, function (target) {
                     var test = target.quantity > 0 && target !== oldTarget;
                     return test;
                 });
             } else {
-                this.migrateToNearest('water-processor, water-storage', function (target) {
+                this.migrateToNearest(this.toSelector, function (target) {
                     var test = target.available() > 0;
                     return test;
                 });

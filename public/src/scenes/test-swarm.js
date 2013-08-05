@@ -80,7 +80,10 @@ require([
                 size : 10
             }).migrator({
                 speed: 4
-            }).collector().migrateToNearest('water-resource');
+            }).collector({
+                fromSelector: 'water-resource',
+                toSelector: 'water-storage, water-processor'
+            });
         }
         
         //  The collector requests water from one of the resources

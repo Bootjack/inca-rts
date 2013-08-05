@@ -48,7 +48,7 @@ var Crafty;
         
         //  Migrate to the specified point
         migrate: function (vector) {
-            //  The vector argument can be a Crafty..Vector2D or any object {x: x, y: y}
+            //  The vector argument can be a Crafty Vector2D or any object {x: x, y: y}
             this.destination = new Crafty.math.Vector2D(vector);
             this.unbind('EnterFrame', this.migratorOnEnterFrame)
             this.bind('EnterFrame', this.migratorOnEnterFrame);
