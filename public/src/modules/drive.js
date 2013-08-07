@@ -1,0 +1,1 @@
+/* Drive consumes a resource from a storage module and provides an impulse to its parent. */
