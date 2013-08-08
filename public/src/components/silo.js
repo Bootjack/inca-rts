@@ -1,12 +1,12 @@
 var Crafty, require;
 
-require(['src/components/container'], function () {
+require(['src/modules/storage'], function () {
     'use strict';
 
-    Crafty.c('Storage', {
+    Crafty.c('Silo', {
         init: function () {
             var self = this;
-            this.requires('2D, DOM, Container');
+            this.requires('2D, DOM, Storage, Exchange');
             
             this.bind('update', function () {
                 self.render();
