@@ -14,6 +14,14 @@ require([], function () {
     Crafty.c('Guidance', {
         init: function() {
             this.waypoints = [];
+            this.active = false;
+            this.proximity = 1;
+            this.onTarget = false;
+            this.heading = 0;
+            this.position = new Box2D.Common.Math.b2Vec2(0, 0);
+            this.bearing = new Box2D.Common.Math.b2Vec2(0, 0);
+            this.course = new Box2D.Common.Math.b2Vec2(0, 0);;
+            this.correction = new Box2D.Common.Math.b2Vec2(0, 0);;
             return this;
         },
 
@@ -22,32 +30,99 @@ require([], function () {
                 throw new Error("Crafty.c('Guide') must be given a reference to a Box2D entity as its guided.");
             }
             this.guided = config.guided;
+            if (config.steer) {
+                this.steer = function (throttle) {
+                    config.steer.apply(config.guided, [throttle]);
+                }
+            };
+            if (config.thrust) {
+                this.thrust = function (throttle) {
+                    config.thrust.apply(config.guided, [throttle]);
+                }
+            };
             this.bind('EnterFrame', this.guide);
             return this;
         },
 
         waypoint: function (waypoint) {
             this.waypoints.push(waypoint);
+            return this;
+        },
+
+        activate: function () {
+            this.active = true;
+            return this;
+        },
+
+        deactivate: function () {
+            this.active = false;
+            this.steer(0);
+            this.thrust(0);
+            return this;
         },
 
         guide: function () {
-            var bearing, correction, course, heading, position, vector;
-            bearing = 0;
-            heading = this.guided.body.GetAngle();
-            position = this.guided.body.GetWorldCenter();
-            course = this.guided.body.GetLinearVelocity();
-            course = Math.atan2(course.y, course.x);
+            var direction, momentDirection, steerThrottle, thrustThrottle, steerVariance, throttleVariance;
+            this.heading = this.guided.body.GetAngle();
+            this.position = this.guided.body.GetWorldCenter();
+            this.course = this.guided.body.GetLinearVelocity();
+            this.course = this.guided.body.GetLocalVector(this.course);
             if (this.waypoints.length) {
-                vector = this.waypoints[0].Copy();
-                vector.Subtract(this.guided.body.GetWorldCenter());
-                vector = this.guided.body.GetLocalVector(vector);
-                bearing = Math.atan2(vector.y, vector.x);
+                this.bearing = this.waypoints[0].Copy();
+                this.bearing.Subtract(this.guided.body.GetWorldCenter());
+                this.bearing = this.guided.body.GetLocalVector(this.bearing);
+                this.correction = this.bearing.Copy();
+                this.correction.Add(this.course);
             }
-            $('#spine-out').html(
-                '<p>bearing: ' + (bearing / Math.PI).toFixed(5) + ' pi radians</p>' +
-                '<p>course: ' + ((course % (2 * Math.PI)) / Math.PI).toFixed(5) + ' pi radians</p>' +
-                '<p>speed: ' + position.x.toFixed(3) + 'm, ' + position.y.toFixed(3) + 'm</p>'
-            );
+
+            if (this.bearing.Length() > 1) {
+                this.onTarget = false;
+            }
+
+            if (this.active && !this.onTarget) {
+                steerVariance = Math.atan2(this.correction.y, this.correction.x);
+                throttleVariance = Math.atan2(this.bearing.y, this.bearing.x);
+
+                //steerThrottle = Math.atan2(this.correction.y, this.correction.x) % (2 * Math.PI) / Math.PI;
+
+                steerThrottle = Math.sin(throttleVariance);
+                direction = throttleVariance > 0 ? 1 : -1;
+                momentDirection = this.guided.body.GetAngularVelocity() > 0 ? 1 : -1;
+
+                if (throttleVariance > 0.5 * Math.PI) {
+                    steerThrottle = direction;
+                }
+
+                if (momentDirection !== direction) {
+                    steerThrottle = Math.min(2, Math.pow(Math.abs(momentDirection - direction), 2)) * steerThrottle;
+                }
+
+                if (this.bearing.Length() < this.proximity) {
+                    this.onTarget = true;
+                    thrustThrottle = 0;
+                } else if (this.bearing.Length() < this.proximity * 2) {
+                    thrustThrottle = (this.bearing.Length() - this.proximity) / this.proximity;
+                } else {
+                    thrustThrottle = 1;
+                }
+                if (throttleVariance < 0.5 * Math.PI) {
+                    thrustThrottle *= Math.cos(throttleVariance);
+                } else {
+                    thrustThrottle = 0;
+                }
+
+                if (this.onTarget) {
+                    steerThrottle = 0;
+                }
+
+                if (this.steer) {
+                    this.steer(steerThrottle);
+                }
+                if (this.thrust) {
+                    this.thrust(thrustThrottle);
+                }
+            }
+
             return this;
         }
     })
