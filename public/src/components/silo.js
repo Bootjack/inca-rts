@@ -5,58 +5,28 @@ require(['src/modules/storage'], function () {
 
     Crafty.c('Silo', {
         init: function () {
-            var self = this;
-            this.requires('2D, DOM, Storage, Exchange');
-            
-            this.bind('update', function () {
-                self.render();
+            this.requires('2D, Canvas, Color')
+                .attr({w: 20, h: 20})
+                .color('rgba(100, 100, 255, 1.0)');
+            this.storage = Crafty.e('Storage').storage({
+                material: 'water',
+                capacity: 200
             });
-            
-            this.contents = Crafty.e('2D, DOM');
-        },
-    
-        storage: function (config) {
-            var color, self;
-            self = this;
-            config = config || {};
-            color = '#000000';
-            if (this.Colors.hasOwnProperty(this.types[0])) {
-                color = this.Colors[(this.types[0])];
-            }
-            this.addComponent('Collision');
-            this.attr({
-                w: this.size,
-                h: this.size
-            }).css({
-                'background-color': color,
-                'border': '2px solid black',
-                'border-radius': '8px'
-            });
-    
-            this.contents.attr({
-                x: this._x + 2,
-                y: this._y + 2,
-                w: this._w - 4,
-                h: 0
-            }).css({
-                'background-color': 'white',
-                'border': '2px solid transparent',
-                'border-radius': '8px'
-            });
-            
-            this.attach(this.contents);
-            
-            this.render();
+            this.bind('EnterFrame', this.render);
             return this;
         },
-        
+    
+        silo: function (config) {
+            config = config || {};
+            this.storage.material = config.material || this.storage.material;
+            this.storage.quantity = config.quantity || this.storage.quantity;
+            this.storage.capacity = config.capacity || this.storage.capacity;
+            return this;
+        },
+
         render: function () {
-            var fullness, emptiness;
-            fullness = Math.min(1.0, this.quantity / this.capacity);
-            emptiness = 1 - fullness;
-            this.contents.attr({
-                h: (this.size - 4) * emptiness
-            });
+            var alpha = 0.05 + 0.95 * this.storage.quantity / this.storage.capacity;
+            this.color('rgba(100, 100, 255, ' + alpha + ')');
             return this;
         }
     });

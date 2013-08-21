@@ -10,8 +10,6 @@ require([], function () {
     Crafty.c('Storage', {
         // Initialize
         init: function () {
-            var self = this,
-
             // Set default properties
             this.material = 'air';
             this.capacity = 1;      // Arbitrary units
@@ -26,11 +24,11 @@ require([], function () {
         // Configure
         storage: function (config) {
             config = config || {};
-            self.material = config.material || this.material;
-            self.capacity = config.capacity || this.capacity;
-            self.rate = config.rate || this.rate;
-            self.delta = config.delta || this.delta;
-            self.quantity = config.quantity || this.quantity;
+            this.material = config.material || this.material;
+            this.capacity = config.capacity || this.capacity;
+            this.rate = config.rate || this.rate;
+            this.delta = config.delta || this.delta;
+            this.quantity = config.quantity || this.quantity;
             this.update();
             return this;
         },
@@ -49,7 +47,7 @@ require([], function () {
             var available, surplus;
             available = this.available();
             surplus = Math.min(0, amount - available);
-            this.quantity += Math.max(amount, available);
+            this.quantity += Math.min(amount, available);
             this.update();
             return surplus;
         },

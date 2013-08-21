@@ -1,74 +1,85 @@
 var Crafty, require;
 
 require([
-    'src/components/collector',
-    'src/components/resource',
-    'src/components/storage'
+    'src/components/drone'
 ], function () {
     'use strict';
-    
+
     Crafty.scene('test-collector', function () {
-        var collector, distance, e, i, origin, quantity, silo, type, vector, w, water, x, y;
-        
-        e = Crafty.e('Mouse, Resource').attr({
-            x: 300,
-            y: 400
-        }).container({
-            type: 'water',
-            quantity: 100,
-            capacity: 200,
-            exchangeDelay: 1000,
-            size: 50
-        }).resource().addComponent('water-resource');
-        e.bind(
-            'Click',
-            (function () {
-                var self = e;
-                return function () {
-                    if (self.busy) {
-                        self.busy = false;
-                    } else {
-                        self.busy = true;
-                    }
-                    self.trigger('update');
-                };
-            }())
-        );
-
-        //  Create a water storage silo
-        silo = Crafty.e('Storage').attr({
-            x: 300,
+        var bodyDef, drone, siloA, siloB, target, walls;
+/*
+        siloA = Crafty.e('Silo').attr({
+            x: 200,
             y: 200
-        }).container({
+        }).silo({
             type: 'water',
-            quantity: 0,
-            capacity: 200,
-            exchangeDelay: 500,
-            size : 50
-        }).storage().addComponent('water-storage');
-        
-        Crafty.e('Collector').attr({
-            x: 50,
-            y: 300
-        }).container({
-            type: 'water',
-            capacity: 10,
-            exchangeDelay: 500,
-            size : 10
-        }).migrator({
-            speed: 4
-        }).collector().migrateToNearest('water-resource');
-        
-        //  The collector requests water from one of the resources
-        //collector.request(Crafty(Crafty('water-resource')[0]), {type: 'water', quantity: 20});
+            quantity: 200,
+        }).addComponent('water-storage');
 
-        /*  This is the strangest Crafty quirk by far: the css() function called in render() 
-         *  doesn't update during initialization and configuration. It won't even update in the
-         *  test scene if included right here. But 10ms from now, it will work. */
-        Crafty.e('Delay').delay(function () {
-            Crafty('Resource').each(function () {
-                this.render();
-            });
-        }, 10);
+        siloB = Crafty.e('Silo').attr({
+            x: 500,
+            y: 200
+        }).silo({
+                type: 'water'
+        }).addComponent('water-storage');
+*/
+        drone = Crafty.e('Drone').attr({
+            x: 50,
+            y: 50
+        }).drone();
+
+        bodyDef = new Box2D.Dynamics.b2BodyDef;
+        bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
+        bodyDef.angularDamping = 1.0;
+        bodyDef.linearDamping = 1.0;
+        bodyDef.position.Set(1 / Crafty._PX2M, 0 / Crafty._PX2M);
+        Crafty.e('2D, Canvas, Color, Box2D')
+            .attr({h: 600, w: 10})
+            .color('rgba(100, 100, 50, 1.0)')
+            .box2d({bodyDef: bodyDef, density: 999, elasticity: 0.2});
+
+        bodyDef.position.Set(790 / Crafty._PX2M, 0 / Crafty._PX2M);
+        Crafty.e('2D, Canvas, Color, Box2D')
+            .attr({h: 600, w: 10})
+            .color('rgba(100, 100, 50, 1.0)')
+            .box2d({bodyDef: bodyDef, density: 999, elasticity: 0.2});
+
+        bodyDef.position.Set(10 / Crafty._PX2M, 0 / Crafty._PX2M);
+        Crafty.e('2D, Canvas, Color, Box2D')
+            .attr({h: 10, w: 780})
+            .color('rgba(100, 100, 50, 1.0)')
+            .box2d({bodyDef: bodyDef, density: 999, elasticity: 0.2});
+
+        bodyDef.position.Set(10 / Crafty._PX2M, 590 / Crafty._PX2M);
+        Crafty.e('2D, Canvas, Color, Box2D')
+            .attr({h: 10, w: 780})
+            .color('rgba(100, 100, 50, 1.0)')
+            .box2d({bodyDef: bodyDef, density: 999, elasticity: 0.2});
+
+        bodyDef.angularDamping = 0.1;
+        bodyDef.linearDamping = 0.05;
+        bodyDef.position.Set(20, 17);
+        Crafty.e('2D, Canvas, Color, Box2D')
+            .attr({h: 80, w: 80})
+            .color('rgba(100, 100, 250, 1.0)')
+            .box2d({bodyDef: bodyDef, density: 0.1, friction: 0.5, elasticity: 0});
+
+        bodyDef.angularDamping = 0.1;
+        bodyDef.linearDamping = 0.05;
+        bodyDef.position.Set(20, 3);
+        Crafty.e('2D, Canvas, Color, Box2D')
+            .attr({h: 80, w: 80})
+            .color('rgba(100, 100, 250, 1.0)')
+            .box2d({bodyDef: bodyDef, density: 0.1, friction: 0.5, elasticity: 0});
+
+        bodyDef.angularDamping = 0.2;
+        bodyDef.linearDamping = 0.1;
+        bodyDef.position.Set(20, 10);
+        target = Crafty.e('2D, Canvas, Color, Box2D')
+            .attr({h: 80, w: 80})
+            .color('rgba(100, 100, 250, 1.0)')
+            .box2d({bodyDef: bodyDef, density: 0.1, friction: 0.5, elasticity: 0});
+
+        drone.guidance.waypoint(target.body.GetWorldCenter());
     });
 });

@@ -24,7 +24,9 @@ require(['src/modules/storage'], function () {
             this.outputs = [];
             this.permanent = false;
             this.active = false;
+            this.volume = 1;
             this.meter = 0;
+            this.limit = -1;
         },
 
         exchange: function (config) {
@@ -69,14 +71,14 @@ require(['src/modules/storage'], function () {
                 }
             }
             this.permanent = config.permanent || this.permanent;
-            if (this.permanent) {
-                this.activate();
-            }
+            this.volume = config.volume || this.volume;
             return this;
         },
 
-        activate: function () {
-            var self= this;
+        activate: function (limit) {
+            var self = this;
+            this.limit = limit || -1;
+            this.active = true;
             this.delay(self.run, INTERVAL, -1);
         },
 
@@ -85,17 +87,32 @@ require(['src/modules/storage'], function () {
         },
 
         run: function () {
-            var i, proportion, storage;
+            var i, actual, adjustment, proportion, quantity, storage;
+            adjustment = 1;
+
+            if (this.limit >= 0 && this.meter >= this.limit) {
+                this.deactivate();
+                if (!this.permanent) {
+                    this.destroy();
+                }
+            }
+
             if (this.active) {
                 for (i = 0; i < this.inputs.length; i += 1) {
                     proportion = this.inputs[i].proportion;
                     storage = this.inputs[i].module;
-                    storage.remove(proportion * INTERVAL / 1000);
+                    quantity = proportion * adjustment * this.volume;
+                    actual = storage.remove(quantity);
+                    adjustment *= actual / quantity;
                 }
                 for (i = 0; i < this.outputs.length; i += 1) {
                     proportion = this.outputs[i].proportion;
                     storage = this.outputs[i].module;
-                    storage.add(proportion * INTERVAL / 1000);
+                    quantity = proportion * adjustment * this.volume;
+                    storage.add(quantity);
+                    if (0 === i) {
+                        this.meter += quantity;
+                    }
                 }
             }
         }
