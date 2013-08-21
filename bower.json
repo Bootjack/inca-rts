@@ -14,7 +14,7 @@
     "spine": "~1.1.0",
     "requirejs": "~2.1.8",
     "underscore": "~1.5.1",
-    "crafty": "~0.6.0-alpha",
+    "crafty": "0.6.0-alpha",
     "jquery": "~2.0.3",
     "modernizr": "~2.6.2"
   }
