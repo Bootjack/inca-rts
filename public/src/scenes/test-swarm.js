@@ -9,13 +9,20 @@ require([
     Crafty.scene('test-swarm', function () {
         var bodyDef, d, drone, drones, player;
 
-        player = Crafty.e('Tugboat').attr({
+        player = Crafty.e('Drone').attr({
             x: 500,
             y: 500
-        }).tugboat();
+        }).drone();
 
         player.bind('EnterFrame', function () {
             var self = this;
+            if (player.isDown(Crafty.keys.SPACE)) {
+                if (player.guidance.active) {
+                    player.guidance.deactivate();
+                } else {
+                    player.guidance.activate();
+                }
+            }
             if (player.isDown(Crafty.keys.UP_ARROW) || player.isDown(Crafty.keys.W)) {
                 player.engine.throttle = Math.min(1, player.engine.throttle + 0.05);
             } else if (player.isDown(Crafty.keys.DOWN_ARROW) || player.isDown(Crafty.keys.S)) {
@@ -32,6 +39,14 @@ require([
                     self.steering.throttle = 0;
                 }, 20);
             }
+        });
+
+        Crafty.addEvent(this, Crafty.stage.elem, "mousedown", function(e) {
+            player.guidance.waypoints = [new Box2D.Common.Math.b2Vec2(
+                e.realX / Crafty._PX2M,
+                e.realY / Crafty._PX2M
+            )];
+            player.guidance.activate();
         });
 
         bodyDef = new Box2D.Dynamics.b2BodyDef;
