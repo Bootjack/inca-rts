@@ -81,7 +81,9 @@ require([
         for (d = 0; d < 100; d += 1) {
             drone = Crafty.e('Drone')
                 .attr({x: 100 + 30 * Math.floor(d / 10), y: 100 + 30 * (d % 10)})
-                .drone().guidance.waypoint(player.body.GetWorldCenter()).activate();
+                .drone();
+            drone.guidance.waypoint(player.body.GetWorldCenter()).activate();
+            drone.engine.volume += Math.random() - 0.5;
             drones.push(drone);
         }
     });

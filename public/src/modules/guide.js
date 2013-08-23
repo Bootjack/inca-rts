@@ -63,7 +63,7 @@ require([], function () {
         },
 
         guide: function () {
-            var self, direction, momentDirection, steerThrottle, thrustThrottle, steerVariance, throttleVariance;
+            var direction, momentDirection, steerThrottle, thrustThrottle, steerVariance, throttleVariance;
             this.position = this.guided.body.GetWorldCenter();
             this.course = this.guided.body.GetLinearVelocity();
             this.course = this.guided.body.GetLocalVector(this.course);
@@ -72,7 +72,7 @@ require([], function () {
                 this.bearing.Subtract(this.guided.body.GetWorldCenter());
                 this.bearing = this.guided.body.GetLocalVector(this.bearing);
                 this.correction = this.bearing.Copy();
-                this.correction.Add(this.course);
+                this.correction.Subtract(this.course);
             }
 
             if (this.bearing.Length() > 1) {
@@ -86,16 +86,17 @@ require([], function () {
 
                 //steerThrottle = Math.atan2(this.correction.y, this.correction.x) % (2 * Math.PI) / Math.PI;
 
-                steerThrottle = Math.sin(throttleVariance);
+                steerThrottle = Math.sin(steerVariance);
                 direction = throttleVariance > 0 ? 1 : -1;
                 momentDirection = this.guided.body.GetAngularVelocity() > 0 ? 1 : -1;
 
                 if (throttleVariance > 0.5 * Math.PI) {
                     steerThrottle = direction;
                 }
-
                 if (momentDirection !== direction) {
-                    steerThrottle = Math.min(2, Math.pow(Math.abs(momentDirection - direction), 2)) * steerThrottle;
+                    //steerThrottle = Math.min(2, Math.pow(Math.abs(momentDirection - direction), 2)) * steerThrottle;
+                    //this.guided.body.angularDamping = -1 * this.guided.body.GetAngularVelocity();
+                    this.guided.body.SetAngularVelocity(this.guided.body.GetAngularVelocity() * 0.25);
                 }
 
                 if (this.bearing.Length() < this.proximity) {
@@ -107,7 +108,7 @@ require([], function () {
                     thrustThrottle = 1;
                 }
                 if (throttleVariance < 0.5 * Math.PI) {
-                    thrustThrottle *= Math.cos(throttleVariance);
+                    thrustThrottle *= Math.cos(steerVariance);
                 } else {
                     thrustThrottle = 0;
                 }
