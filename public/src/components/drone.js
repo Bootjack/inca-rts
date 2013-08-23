@@ -19,7 +19,7 @@ require([
             this.requires('Box2D');
             var bodyDef = new Box2D.Dynamics.b2BodyDef;
             bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
-            bodyDef.position.Set(10, 10);
+            bodyDef.position.Set(this._x / Crafty._PX2M, this._y / Crafty._PX2M);
             bodyDef.angularDamping = 1.0;
             bodyDef.linearDamping = 0.8;
             this.box2d({
@@ -34,8 +34,8 @@ require([
             });
             this.battery = Crafty.e('Storage').storage({
                 material: 'electricity',
-                capacity: 1000,
-                quantity: 1000
+                capacity: 10000,
+                quantity: 10000
             });
             this.engine = Crafty.e('Drive').drive({
                 driven: this,

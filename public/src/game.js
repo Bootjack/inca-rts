@@ -2,30 +2,20 @@ var require, window;
 
 (function () {
     'use strict';
-    
-    require.config({
-        paths: {
-            crafty: 'lib/crafty/crafty-local',
-            jquery: 'lib/jquery/jquery',
-            modernizr: 'lib/modernizr/modernizr',
-            spine: 'lib/spine/lib/spine',
-            underscore: 'lib/underscore/underscore'
-        }
-    });
-    
-    require(['modernizr', 'jquery', 'spine', 'underscore'], function () {
-        require(['crafty', 'src/config'], function (Crafty, config) {
+
+    require(['src/crafty'], function (Crafty) {
+        window.Crafty = Crafty;
+        require(['src/box2d'], function () {
             //start Crafty
-            Crafty._PX2M = 25
+            Crafty._PX2M = 25;
             Crafty.init(800, 600);
             Crafty.canvas.init();
             Crafty.box2D.init(0, 0, Crafty._PX2M, true);
             //Crafty.box2D.showDebugInfo();
-            window.Crafty = Crafty;
-          
+
             //the loading screen - that will be display while assets loaded
             Crafty.scene("loading", function () {
-    
+
                 Crafty.e('2D, HTML, Mouse')
                     .attr({x: 25, y: 25, w: 250, h: 25})
                     .replace('<a href="#" class="scene-link">Silo Test</a>')
@@ -58,23 +48,29 @@ var require, window;
                         Crafty.scene('test-chaser');
                     });
 
+                Crafty.e('2D, HTML, Mouse')
+                    .attr({x: 25, y: 225, w: 250, h: 25})
+                    .replace('<a href="#" class="scene-link">Swarm Test</a>')
+                    .bind('Click', function (e) {
+                        e.preventDefault();
+                        Crafty.scene('test-swarm');
+                    });
+
                 //when everything is loaded, run the main scene
                 require([
                     'src/scenes/test-silo',
                     'src/scenes/test-tugboat',
                     'src/scenes/test-guidance',
-                    'src/scenes/test-chaser'
+                    'src/scenes/test-chaser',
+                    'src/scenes/test-swarm'
                 ], function () {
-                    if (config.scene !== undefined) {
-                        Crafty.scene(config.scene);
-                    }
+
                 });
-            
+
             });
-                    
+
             //automatically play the loading scene
             Crafty.scene("loading");
-        
         });
     });
 }());

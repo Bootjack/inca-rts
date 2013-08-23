@@ -13,6 +13,7 @@ require([], function () {
 
     Crafty.c('Guidance', {
         init: function() {
+            this.requires('Delay');
             this.waypoints = [];
             this.active = false;
             this.proximity = 1;
@@ -62,8 +63,7 @@ require([], function () {
         },
 
         guide: function () {
-            var direction, momentDirection, steerThrottle, thrustThrottle, steerVariance, throttleVariance;
-            this.heading = this.guided.body.GetAngle();
+            var self, direction, momentDirection, steerThrottle, thrustThrottle, steerVariance, throttleVariance;
             this.position = this.guided.body.GetWorldCenter();
             this.course = this.guided.body.GetLinearVelocity();
             this.course = this.guided.body.GetLocalVector(this.course);
@@ -80,6 +80,7 @@ require([], function () {
             }
 
             if (this.active && !this.onTarget) {
+
                 steerVariance = Math.atan2(this.correction.y, this.correction.x);
                 throttleVariance = Math.atan2(this.bearing.y, this.bearing.x);
 

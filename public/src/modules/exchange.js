@@ -87,9 +87,6 @@ require(['src/modules/storage'], function () {
         },
 
         run: function () {
-            var i, actual, adjustment, proportion, quantity, storage;
-            adjustment = 1;
-
             if (this.limit >= 0 && this.meter >= this.limit) {
                 this.deactivate();
                 if (!this.permanent) {
@@ -98,8 +95,10 @@ require(['src/modules/storage'], function () {
             }
 
             if (this.active) {
+                var i, actual, adjustment, proportion, quantity, storage;
+                adjustment = 1;
                 for (i = 0; i < this.inputs.length; i += 1) {
-                    proportion = this.inputs[i].proportion;
+                    proportion = this.inputs[i].proportion * INTERVAL / 1000;
                     storage = this.inputs[i].module;
                     quantity = proportion * adjustment * this.volume;
                     actual = storage.remove(quantity);

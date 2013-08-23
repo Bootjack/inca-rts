@@ -1,101 +1,73 @@
 var Crafty, require;
 
 require([
-    'src/components/collector',
-    'src/components/resource',
-    'src/components/storage'
+    'src/components/drone',
+    'src/components/tugboat'
 ], function () {
     'use strict';
-    
+
     Crafty.scene('test-swarm', function () {
-        var collector, distance, e, i, origin, quantity, silo, type, vector, w, water, x, y;
-        
-        //  Create 10 resource puddles with an 80% chance of being water
-        for (i = 0; i < 40; i += 1) {
-            quantity = 20 + Math.floor(Math.random() * 100);
-            x = 100 + Math.floor(Math.random() * 600);
-            y = 100 + Math.floor(Math.random() * 400);
-            type = (Math.random() > 0.4) ? 'dirt' : 'water';
-            e = Crafty.e('Mouse, Resource').attr({
-                x: x,
-                y: y
-            }).container({
-                type: type,
-                quantity: quantity,
-                capacity: 150,
-                exchangeDelay: 1000,
-                size: 50
-            }).resource().addComponent(type + '-resource');
-            e.bind(
-                'Click',
-                (function () {
-                    var self = e;
-                    return function () {
-                        if (self.busy) {
-                            self.busy = false;
-                        } else {
-                            self.busy = true;
-                        }
-                        self.trigger('update');
-                    };
-                }())
-            );
+        var bodyDef, d, drone, drones, player;
+
+        player = Crafty.e('Tugboat').attr({
+            x: 500,
+            y: 500
+        }).tugboat();
+
+        player.bind('EnterFrame', function () {
+            var self = this;
+            if (player.isDown(Crafty.keys.UP_ARROW) || player.isDown(Crafty.keys.W)) {
+                player.engine.throttle = Math.min(1, player.engine.throttle + 0.05);
+            } else if (player.isDown(Crafty.keys.DOWN_ARROW) || player.isDown(Crafty.keys.S)) {
+                player.engine.throttle = Math.max(0, player.engine.throttle - 0.05);
+            }
+            if (player.isDown(Crafty.keys.LEFT_ARROW) || player.isDown(Crafty.keys.A)) {
+                player.steering.throttle = Math.max(-1, player.steering.throttle - 0.2);
+                player.delay(function () {
+                    self.steering.throttle = 0;
+                }, 20)
+            } else if (player.isDown(Crafty.keys.RIGHT_ARROW) || player.isDown(Crafty.keys.D)) {
+                player.steering.throttle = Math.min(1, player.steering.throttle + 0.2);
+                player.delay(function () {
+                    self.steering.throttle = 0;
+                }, 20);
+            }
+        });
+
+        bodyDef = new Box2D.Dynamics.b2BodyDef;
+        bodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
+        bodyDef.position.Set(1 / Crafty._PX2M, 0 / Crafty._PX2M);
+        Crafty.e('2D, Canvas, Color, Box2D')
+            .attr({h: 600, w: 10})
+            .color('rgba(100, 100, 50, 1.0)')
+            .box2d({bodyDef: bodyDef, density: 999, elasticity: 0.2});
+
+        bodyDef.position.Set(790 / Crafty._PX2M, 0 / Crafty._PX2M);
+        Crafty.e('2D, Canvas, Color, Box2D')
+            .attr({h: 600, w: 10})
+            .color('rgba(100, 100, 50, 1.0)')
+            .box2d({bodyDef: bodyDef, density: 999, elasticity: 0.2});
+
+        bodyDef.position.Set(10 / Crafty._PX2M, 0 / Crafty._PX2M);
+        Crafty.e('2D, Canvas, Color, Box2D')
+            .attr({h: 10, w: 780})
+            .color('rgba(100, 100, 50, 1.0)')
+            .box2d({bodyDef: bodyDef, density: 999, elasticity: 0.2});
+
+        bodyDef.position.Set(10 / Crafty._PX2M, 590 / Crafty._PX2M);
+        Crafty.e('2D, Canvas, Color, Box2D')
+            .attr({h: 10, w: 780})
+            .color('rgba(100, 100, 50, 1.0)')
+            .box2d({bodyDef: bodyDef, density: 999, elasticity: 0.2});
+
+        bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
+
+        drones = [];
+        for (d = 0; d < 100; d += 1) {
+            drone = Crafty.e('Drone')
+                .attr({x: 100 + 30 * Math.floor(d / 10), y: 100 + 30 * (d % 10)})
+                .drone().guidance.waypoint(player.body.GetWorldCenter()).activate();
+            drones.push(drone);
         }
-
-        //  Create a water storage silo
-        silo = Crafty.e('Storage').attr({
-            x: 100,
-            y: 25
-        }).container({
-            type: 'water',
-            quantity: 0,
-            capacity: 200,
-            exchangeDelay: 500,
-            size : 50
-        }).storage().addComponent('water-storage');
-
-        //  Create a water storage silo
-        silo = Crafty.e('Storage').attr({
-            x: 600,
-            y: 25
-        }).container({
-            type: 'water',
-            quantity: 0,
-            capacity: 200,
-            exchangeDelay: 500,
-            size : 50
-        }).storage().addComponent('water-storage');
-        
-        for (i = 0; i < 10; i += 1) {
-            x = 100 + Math.floor(Math.random() * 600);
-            y = 100 + Math.floor(Math.random() * 400);
-            //  Create a water collector
-            Crafty.e('Collector').attr({
-                x: x,
-                y: y
-            }).container({
-                type: 'water',
-                capacity: 5,
-                exchangeDelay: 500,
-                size : 10
-            }).migrator({
-                speed: 4
-            }).collector({
-                fromSelector: 'water-resource',
-                toSelector: 'water-storage, water-processor'
-            });
-        }
-        
-        //  The collector requests water from one of the resources
-        //collector.request(Crafty(Crafty('water-resource')[0]), {type: 'water', quantity: 20});
-
-        /*  This is the strangest Crafty quirk by far: the css() function called in render() 
-         *  doesn't update during initialization and configuration. It won't even update in the
-         *  test scene if included right here. But 10ms from now, it will work. */
-        Crafty.e('Delay').delay(function () {
-            Crafty('Resource').each(function () {
-                this.render();
-            });
-        }, 10);
     });
 });

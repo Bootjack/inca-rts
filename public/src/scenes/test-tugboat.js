@@ -47,15 +47,6 @@ require([
                 }, 20);
             }
         })
-        tugboat.bind('KeyDown', function (e) {
-            if (e.keyCode === Crafty.keys.SPACE) {
-                if (tugboat.guidance.active) {
-                    tugboat.guidance.deactivate();
-                } else {
-                    tugboat.guidance.activate();
-                }
-            }
-        });
 
         bodyDef = new Box2D.Dynamics.b2BodyDef;
         bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;

@@ -6,11 +6,11 @@ require([
     'use strict';
 
     Crafty.scene('test-chaser', function () {
-        var bodyDef, drone, player;
+        var bodyDef, d, drone, drones, player;
 
         player = Crafty.e('Drone').attr({
-            x: 50,
-            y: 50
+            x: 200,
+            y: 300
         }).drone();
 
         player.bind('EnterFrame', function () {
@@ -34,9 +34,7 @@ require([
         });
 
         bodyDef = new Box2D.Dynamics.b2BodyDef;
-        bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
-        bodyDef.angularDamping = 1.0;
-        bodyDef.linearDamping = 1.0;
+        bodyDef.type = Box2D.Dynamics.b2Body.b2_staticBody;
         bodyDef.position.Set(1 / Crafty._PX2M, 0 / Crafty._PX2M);
         Crafty.e('2D, Canvas, Color, Box2D')
             .attr({h: 600, w: 10})
@@ -61,20 +59,32 @@ require([
             .color('rgba(100, 100, 50, 1.0)')
             .box2d({bodyDef: bodyDef, density: 999, elasticity: 0.2});
 
+        bodyDef.type = Box2D.Dynamics.b2Body.b2_dynamicBody;
 
-        drone = Crafty.e('Drone').attr({
-            x: 500,
-            y: 500
-        }).drone();
-        drone.bind('KeyDown', function (e) {
-            if (e.keyCode === Crafty.keys.SPACE) {
-                if (drone.guidance.active) {
-                    drone.guidance.deactivate();
-                } else {
-                    drone.guidance.activate();
-                }
-            }
-        });
-        drone.guidance.waypoint(player.body.GetWorldCenter()).activate();
+        drones = [];
+        for (d = 0; d < 4; d += 1) {
+            drones.push(
+                Crafty.e('Drone').attr({
+                    x: 300,
+                    y: 100 + 40 * d
+                }).drone()
+            )
+        }
+        for (d = 0; d < drones.length; d += 1) {
+            drone = drones[d];
+            drone.bind('KeyDown', (function () {
+                var self = drone;
+                return function (e) {
+                    if (e.keyCode === Crafty.keys.SPACE) {
+                        if (self.guidance.active) {
+                            self.guidance.deactivate();
+                        } else {
+                            self.guidance.activate();
+                        }
+                    }
+                };
+            }()));
+            drones[d].guidance.waypoint(player.body.GetWorldCenter()).activate();
+        }
     });
 });

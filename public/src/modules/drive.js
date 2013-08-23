@@ -7,8 +7,7 @@ require(['src/modules/storage', 'src/modules/exchange'], function () {
 
     Crafty.c('Drive', {
         init: function() {
-            this.requires('2D, Box2D, Exchange')
-                .box2d({bodyType: 'dynamic', density: 1});
+            this.requires('Exchange');
             this.throttle = 0;
             this.efficiency = 1;
             this.isAngular = false;

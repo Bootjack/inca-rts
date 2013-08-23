@@ -9,7 +9,6 @@
 		'intro',
 		'HashMap',
 		'2D',
-        'box2d',
 		'collision',
 		'DebugLayer',
 		'DOM',
